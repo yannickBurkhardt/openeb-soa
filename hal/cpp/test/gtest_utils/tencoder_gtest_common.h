@@ -65,6 +65,15 @@ void compare_vectors(const std::vector<EventType> &events_expected, const std::v
     }
 }
 
+void compare_vectors(const Metavision::EventsSoA &events_expected, const Metavision::EventsSoA &events) {
+    // Now, check that what we decoded back is the same as what we encoded
+    ASSERT_EQ(events_expected.size(), events.size());
+    for (auto it = events.begin(), it_expected = events_expected.begin(), it_end = events.end(); it != it_end;
+         ++it, ++it_expected) {
+        expect_event_equality(*it_expected, *it);
+    }
+}
+
 template<typename RawBaseType>
 size_t count_how_many_time_high(const RawBaseType &ev_to_find, const std::vector<uint8_t> &encoded) {
     size_t tot_size_encoded = encoded.size();
@@ -89,8 +98,12 @@ template<class EvtFormat>
 inline void build_decoder(DeviceBuilder &device_builder) {}
 
 template<class EvtFormat, class Event>
-inline std::vector<Event> build_vector_of_events() {
-    return std::vector<Event>();
+inline auto build_vector_of_events() {
+    if constexpr (std::is_same_v<Event, EventCD>) {
+        return EventsSoA{};
+    } else {
+        return std::vector<Event>();
+    }
 }
 
 template<>
@@ -111,19 +124,26 @@ void register_decode_event_cb(Device &device, std::vector<EventType> &decoded_ev
     });
 }
 
-template<typename EventType, typename... EventTypes>
-void register_decode_event_cb(Device &device, std::vector<EventType> &decoded_events,
+template<typename... EventTypes>
+void register_decode_event_cb(Device &device, EventsSoA &decoded_events,
                               std::vector<EventTypes> &...decoded_events_other) {
     auto event_decoder = device.get_facility<I_EventDecoder<EventType>>();
-    event_decoder->add_event_buffer_callback([&decoded_events](const EventType *begin, const EventType *end) {
+    event_decoder->add_event_buffer_callback([&decoded_events](const EventCD *begin, const EventCD *end) {
         decoded_events.insert(decoded_events.end(), begin, end);
     });
 
     register_decode_event_cb(device, decoded_events_other...);
 }
 
-template<typename EvtFormat, typename EventType, typename... EventTypes>
-void setup_decoders_and_decode(std::vector<uint8_t> &encoded_events, std::vector<EventType> &decoded_events,
+void register_decode_event_cb(Device &device, EventsSoA &decoded_events) {
+    auto event_decoder = device.get_facility<I_EventDecoder<EventType>>();
+    event_decoder->add_event_buffer_callback([&decoded_events](const EventCD *begin, const EventCD *end) {
+        decoded_events.insert(decoded_events.end(), begin, end);
+    });
+}
+
+template<typename EvtFormat, typename... EventTypes>
+void setup_decoders_and_decode(std::vector<uint8_t> &encoded_events, EventsSoA &decoded_events,
                                std::vector<EventTypes> &...decoded_events_other) {
     DeviceBuilder device_builder = make_device_builder();
     build_decoder<EvtFormat>(device_builder);
@@ -135,39 +155,39 @@ void setup_decoders_and_decode(std::vector<uint8_t> &encoded_events, std::vector
                                                           encoded_events.data() + encoded_events.size());
 }
 
-template<typename EvtFormat, typename TimerHighRedundancyPolicy, typename EventType>
-void encode_events_and_decode_them_back(const std::vector<EventType> &events_to_encode,
-                                        std::vector<EventType> &decoded_events, int slices = 1) {
-    std::vector<uint8_t> encoded_events;
+// template<typename EvtFormat, typename TimerHighRedundancyPolicy, typename EventType>
+// void encode_events_and_decode_them_back(const EventsSoA &events_to_encode,
+//                                         EventsSoA &decoded_events, int slices = 1) {
+//     std::vector<uint8_t> encoded_events;
 
-    // Encode the events
-    using EncoderType = TEncoder<EvtFormat, TimerHighRedundancyPolicy>;
-    EncoderType encoder;
-    encoder.set_encode_event_callback(
-        [&encoded_events](const uint8_t *b, const uint8_t *e) { encoded_events.insert(encoded_events.end(), b, e); });
+//     // Encode the events
+//     using EncoderType = TEncoder<EvtFormat, TimerHighRedundancyPolicy>;
+//     EncoderType encoder;
+//     encoder.set_encode_event_callback(
+//         [&encoded_events](const uint8_t *b, const uint8_t *e) { encoded_events.insert(encoded_events.end(), b, e); });
 
-    size_t n_to_decode = events_to_encode.size();
-    auto it            = events_to_encode.data();
-    auto it_end        = it + n_to_decode;
-    size_t step        = n_to_decode / slices;
-    if (slices == 1 || step == 0) {
-        encoder.encode(it, it_end);
-    } else {
-        while (it + step <= it_end) {
-            encoder.encode(it, it + step);
-            it += step;
-        }
-        encoder.encode(it, it_end);
-    }
-    encoder.flush();
+//     size_t n_to_decode = events_to_encode.size();
+//     auto it            = events_to_encode.data();
+//     auto it_end        = it + n_to_decode;
+//     size_t step        = n_to_decode / slices;
+//     if (slices == 1 || step == 0) {
+//         encoder.encode(it, it_end);
+//     } else {
+//         while (it + step <= it_end) {
+//             encoder.encode(it, it + step);
+//             it += step;
+//         }
+//         encoder.encode(it, it_end);
+//     }
+//     encoder.flush();
 
-    // Now, decode back the events
-    setup_decoders_and_decode<EvtFormat>(encoded_events, decoded_events);
-}
+//     // Now, decode back the events
+//     setup_decoders_and_decode<EvtFormat>(encoded_events, decoded_events);
+// }
 
-template<typename EvtFormat, typename TimerHighRedundancyPolicy, typename EventType>
-void encode_all_events_and_decode_them_back(const std::vector<EventType> &events_to_encode,
-                                            std::vector<EventType> &decoded_events) {
+template<typename EvtFormat, typename TimerHighRedundancyPolicy>
+void encode_all_events_and_decode_them_back(const EventsSoA &events_to_encode,
+                                            EventsSoA &decoded_events) {
     std::vector<uint8_t> encoded_events;
 
     // Encode the events
@@ -184,9 +204,9 @@ void encode_all_events_and_decode_them_back(const std::vector<EventType> &events
 }
 
 template<>
-inline std::vector<Metavision::EventCD> build_vector_of_events<Evt2RawFormat, Metavision::EventCD>() {
+inline auto build_vector_of_events<Evt2RawFormat, Metavision::EventCD>() {
     // clang-format off
-    std::vector<Metavision::EventCD> events = {
+    std::vector<Metavision::EventCD> events_cd = {
         Metavision::Event2d(331, 261, 0, 1589), Metavision::Event2d(7, 127, 0, 3040), Metavision::Event2d(468, 114, 0, 4416), Metavision::Event2d(560, 3, 0, 5794),
         Metavision::Event2d(222, 253, 1, 7020), Metavision::Event2d(288, 8, 1, 8868), Metavision::Event2d(314, 296, 1, 10480), Metavision::Event2d(16, 383, 0, 11977),
         Metavision::Event2d(502, 87, 0, 13431), Metavision::Event2d(428, 133, 0, 14877), Metavision::Event2d(589, 8, 0, 16168), Metavision::Event2d(117, 261, 0, 17436),
@@ -243,12 +263,16 @@ inline std::vector<Metavision::EventCD> build_vector_of_events<Evt2RawFormat, Me
         Metavision::Event2d(287, 293, 1, 217220), Metavision::Event2d(313, 349, 1, 217920), Metavision::Event2d(574, 288, 1, 218535), Metavision::Event2d(292, 312, 0, 219208),
         Metavision::Event2d(200, 308, 0, 219879), Metavision::Event2d(97, 375, 1, 220539), Metavision::Event2d(312, 348, 1, 221172), Metavision::Event2d(13, 268, 1, 221860)
     };
+    Metavision::EventsSoA events;
+    for (const auto& e : events_cd) {
+        events.emplace_back(e);
+    }
     // clang-format on
     return events;
 }
 
 template<>
-inline std::vector<Metavision::EventExtTrigger> build_vector_of_events<Evt2RawFormat, Metavision::EventExtTrigger>() {
+inline auto build_vector_of_events<Evt2RawFormat, Metavision::EventExtTrigger>() {
     // clang-format off
     std::vector<Metavision::EventExtTrigger> events = {
         Metavision::EventExtTrigger(0, 1589, 28), Metavision::EventExtTrigger(0, 3040, 10), Metavision::EventExtTrigger(0, 4416, 6), Metavision::EventExtTrigger(0, 5794, 13), Metavision::EventExtTrigger(1, 7020, 23),

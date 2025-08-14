@@ -17,6 +17,7 @@
 #include <stddef.h>
 
 #include "metavision/sdk/base/utils/timestamp.h"
+#include "metavision/sdk/base/events/events_soa.h"
 #include "event_raw_format_traits.h"
 
 namespace Metavision {
@@ -39,7 +40,7 @@ struct BatchEventEncoder {
     }
 
     inline Metavision::timestamp get_next_timestamp_to_encode() {
-        return (next_to_encode_ == last_) ? std::numeric_limits<Metavision::timestamp>::max() : next_to_encode_->t;
+        return (next_to_encode_ == last_) ? std::numeric_limits<Metavision::timestamp>::max() : (*next_to_encode_).t;
     }
 
     template<typename EvtFormat>
@@ -49,10 +50,19 @@ struct BatchEventEncoder {
 
     template<typename EvtFormat>
     inline void encode_next_event(uint8_t *encoded_ev) {
-        auto ev_td = reinterpret_cast<
-            typename event_raw_format_traits<EvtFormat>::template EncodedEvent<DecodedEventType>::Type *>(encoded_ev);
-        EventEncoder<DecodedEventType>::template encode_event<EvtFormat>(ev_td, &*next_to_encode_);
-        ++next_to_encode_;
+        if constexpr (std::is_same_v<DecodedEventType, EventCD>) {
+            auto ev_td = reinterpret_cast<
+                typename event_raw_format_traits<EvtFormat>::template EncodedEvent<
+                    EventCD>::Type *>(encoded_ev);
+            const auto &ref = *next_to_encode_;
+            EventCD tmp{ref.x, ref.y, ref.p, ref.t};
+            EventEncoder<EventCD>::template encode_event<EvtFormat>(ev_td, &tmp);
+        } else {
+            auto ev_td = reinterpret_cast<
+                typename event_raw_format_traits<EvtFormat>::template EncodedEvent<DecodedEventType>::Type *>(encoded_ev);
+            EventEncoder<DecodedEventType>::template encode_event<EvtFormat>(ev_td, &*next_to_encode_);
+        }
+    ++next_to_encode_;
     }
 
     inline bool is_done() const {

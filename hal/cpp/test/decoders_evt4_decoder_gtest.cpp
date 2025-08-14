@@ -27,7 +27,7 @@ using EventCdDecoder  = I_EventDecoder<EventCD>;
 using EventExtDecoder = I_EventDecoder<EventExtTrigger>;
 using EventErcDecoder = I_EventDecoder<EventERCCounter>;
 
-using EventCdBuffer  = std::vector<EventCD>;
+using EventCdBuffer  = EventsSoA;
 using EventExtBuffer = std::vector<EventExtTrigger>;
 using EventErcBuffer = std::vector<EventERCCounter>;
 
@@ -79,7 +79,7 @@ using DecodedBuffers = std::tuple<EventCdBuffer, EventExtBuffer, EventErcBuffer>
 
 DecodedBuffers decode_buffer(DataBuffer &data, I_Decoder &decoder, EventCdDecoder &event_cd_decoder,
                              EventExtDecoder &event_ext_decoder, EventErcDecoder &event_erc_decoder) {
-    std::vector<EventCD> event_cd_buffer;
+    EventsSoA event_cd_buffer;
     auto cb_cb_id = event_cd_decoder.add_event_buffer_callback(
         [&](auto beg, auto end) { std::copy(beg, end, std::back_inserter(event_cd_buffer)); });
 
@@ -134,11 +134,10 @@ TEST_F(Evt4DecoderTest, should_decode_basic_evt4_stream) {
         event_cd(6, 5, 0, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x, y, p, t
-        {3, 2, 0, 0},
-        {6, 5, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(3, 2, 0, 0);
+    expected_events.emplace_back(6, 5, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -156,11 +155,10 @@ TEST_F(Evt4DecoderTest, should_drop_events_before_1st_timehigh) {
         event_cd(7, 6, 2, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, (3 << 6) + 1},
-        {7, 6, 1, (3 << 6) + 2},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, (3 << 6) + 1);
+    expected_events.emplace_back(7, 6, 1, (3 << 6) + 2);
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
 
@@ -173,10 +171,14 @@ TEST_F(Evt4DecoderTest, should_decode_event_vect) {
         event_cd_vec_mask(1 << 14 | 1 << 10 | 1 << 4),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 0}, {5 + 3, 4, 0, 0}, {5 + 7, 4, 0, 0}, {10 + 4, 6, 1, 0}, {10 + 10, 6, 1, 0}, {10 + 14, 6, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 0);
+    expected_events.emplace_back(5 + 3, 4, 0, 0);
+    expected_events.emplace_back(5 + 7, 4, 0, 0);
+    expected_events.emplace_back(10 + 4, 6, 1, 0);
+    expected_events.emplace_back(10 + 10, 6, 1, 0);
+    expected_events.emplace_back(10 + 14, 6, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -191,13 +193,12 @@ TEST_F(Evt4DecoderTest, should_decode_event_timestamps) {
         event_cd(10, 6, 20, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {10, 6, 1, 20},
-        {5, 4, 0, (15 << 6) + 5},
-        {10, 6, 1, (15 << 6) + 20},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(10, 6, 1, 20);
+    expected_events.emplace_back(5, 4, 0, (15 << 6) + 5);
+    expected_events.emplace_back(10, 6, 1, (15 << 6) + 20);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -216,13 +217,12 @@ TEST_F(Evt4DecoderTest, should_decode_event_timestamp_loop) {
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {5, 4, 0, (1ULL << 34) + 5},
-        {5, 4, 0, (2ULL << 34) + 5},
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(5, 4, 0, (1ULL << 34) + 5);
+    expected_events.emplace_back(5, 4, 0, (2ULL << 34) + 5);
 
-    };
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -234,10 +234,9 @@ TEST_F(Evt4DecoderTest, should_decode_negative_32bit_as_unsigned_timehigh) {
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, ((1ULL << 25) << 6) + 5},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, ((1ULL << 25) << 6) + 5);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -320,11 +319,10 @@ TEST_F(UnsafeEvt4DecoderTest, should_decode_basic_evt4_stream) {
         event_cd(6, 5, 0, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x, y, p, t
-        {3, 2, 0, 0},
-        {6, 5, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(3, 2, 0, 0);
+    expected_events.emplace_back(6, 5, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -342,11 +340,10 @@ TEST_F(UnsafeEvt4DecoderTest, should_drop_events_before_1st_timehigh) {
         event_cd(7, 6, 2, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, (3 << 6) + 1},
-        {7, 6, 1, (3 << 6) + 2},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, (3 << 6) + 1);
+    expected_events.emplace_back(7, 6, 1, (3 << 6) + 2);
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
 
@@ -359,10 +356,14 @@ TEST_F(UnsafeEvt4DecoderTest, should_decode_event_vect) {
         event_cd_vec_mask(1 << 14 | 1 << 10 | 1 << 4),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 0}, {5 + 3, 4, 0, 0}, {5 + 7, 4, 0, 0}, {10 + 4, 6, 1, 0}, {10 + 10, 6, 1, 0}, {10 + 14, 6, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 0);
+    expected_events.emplace_back(5 + 3, 4, 0, 0);
+    expected_events.emplace_back(5 + 7, 4, 0, 0);
+    expected_events.emplace_back(10 + 4, 6, 1, 0);
+    expected_events.emplace_back(10 + 10, 6, 1, 0);
+    expected_events.emplace_back(10 + 14, 6, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -377,13 +378,12 @@ TEST_F(UnsafeEvt4DecoderTest, should_decode_event_timestamps) {
         event_cd(10, 6, 20, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {10, 6, 1, 20},
-        {5, 4, 0, (15 << 6) + 5},
-        {10, 6, 1, (15 << 6) + 20},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(10, 6, 1, 20);
+    expected_events.emplace_back(5, 4, 0, (15 << 6) + 5);
+    expected_events.emplace_back(10, 6, 1, (15 << 6) + 20);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -400,13 +400,11 @@ TEST_F(UnsafeEvt4DecoderTest, should_decode_event_timestamp_loop) {
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {5, 4, 0, (1ULL << 34) + 5},
-        {5, 4, 0, (2ULL << 34) + 5},
-
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(5, 4, 0, (1ULL << 34) + 5);
+    expected_events.emplace_back(5, 4, 0, (2ULL << 34) + 5);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -418,10 +416,9 @@ TEST_F(UnsafeEvt4DecoderTest, should_decode_negative_32bit_as_unsigned_timehigh)
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, ((1ULL << 25) << 6) + 5},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, ((1ULL << 25) << 6) + 5);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -503,11 +500,10 @@ TEST_F(RobustEvt4DecoderTest, should_decode_basic_evt4_stream) {
         event_cd(6, 5, 0, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x, y, p, t
-        {3, 2, 0, 0},
-        {6, 5, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(3, 2, 0, 0);
+    expected_events.emplace_back(6, 5, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -525,11 +521,10 @@ TEST_F(RobustEvt4DecoderTest, should_drop_events_before_1st_timehigh) {
         event_cd(7, 6, 2, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, (3 << 6) + 1},
-        {7, 6, 1, (3 << 6) + 2},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, (3 << 6) + 1);
+    expected_events.emplace_back(7, 6, 1, (3 << 6) + 2);
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
 
@@ -542,10 +537,14 @@ TEST_F(RobustEvt4DecoderTest, should_decode_event_vect) {
         event_cd_vec_mask(1 << 14 | 1 << 10 | 1 << 4),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 0}, {5 + 3, 4, 0, 0}, {5 + 7, 4, 0, 0}, {10 + 4, 6, 1, 0}, {10 + 10, 6, 1, 0}, {10 + 14, 6, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 0);
+    expected_events.emplace_back(5 + 3, 4, 0, 0);
+    expected_events.emplace_back(5 + 7, 4, 0, 0);
+    expected_events.emplace_back(10 + 4, 6, 1, 0);
+    expected_events.emplace_back(10 + 10, 6, 1, 0);
+    expected_events.emplace_back(10 + 14, 6, 1, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -560,13 +559,12 @@ TEST_F(RobustEvt4DecoderTest, should_decode_event_timestamps) {
         event_cd(10, 6, 20, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {10, 6, 1, 20},
-        {5, 4, 0, (15 << 6) + 5},
-        {10, 6, 1, (15 << 6) + 20},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(10, 6, 1, 20);
+    expected_events.emplace_back(5, 4, 0, (15 << 6) + 5);
+    expected_events.emplace_back(10, 6, 1, (15 << 6) + 20);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -585,13 +583,12 @@ TEST_F(RobustEvt4DecoderTest, should_decode_event_timestamp_loop) {
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 5},
-        {5, 4, 0, (1ULL << 34) + 5},
-        {5, 4, 0, (2ULL << 34) + 5},
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 5);
+    expected_events.emplace_back(5, 4, 0, (1ULL << 34) + 5);
+    expected_events.emplace_back(5, 4, 0, (2ULL << 34) + 5);
 
-    };
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -603,10 +600,9 @@ TEST_F(RobustEvt4DecoderTest, should_decode_negative_32bit_as_unsigned_timehigh)
         event_cd(5, 4, 5, false),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, ((1ULL << 25) << 6) + 5},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, ((1ULL << 25) << 6) + 5);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -678,12 +674,11 @@ TEST_F(RobustEvt4DecoderTest, should_skip_out_of_bouds_events_vect) {
         padding(),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 0},
-        {5 + 3, 4, 0, 0},
-        {5 + 7, 4, 0, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 0);
+    expected_events.emplace_back(5 + 3, 4, 0, 0);
+    expected_events.emplace_back(5 + 7, 4, 0, 0);
 
     EXPECT_THAT(events, ContainerEq(expected_events));
 }
@@ -707,18 +702,16 @@ TEST_F(RobustEvt4DecoderTest, should_skip_th_jump) {
         event_cd_vec_mask(1 << 7 | 1 << 3 | 1),
     });
 
-    const std::vector<EventCD> expected_events_1 = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-    };
+    EventsSoA expected_events_1;
+                              // x, y, p, t
+    expected_events_1.emplace_back(2, 1, 0, 0);
 
-    const std::vector<EventCD> expected_events_2 = {
-        // x. y, p, t
-        {6, 5, 1, 6400},
-        {5 + 0, 4, 0, 6400},
-        {5 + 3, 4, 0, 6400},
-        {5 + 7, 4, 0, 6400},
-    };
+    EventsSoA expected_events_2;
+                              // x, y, p, t
+    expected_events_2.emplace_back(6, 5, 1, 6400);
+    expected_events_2.emplace_back(5 + 0, 4, 0, 6400);
+    expected_events_2.emplace_back(5 + 3, 4, 0, 6400);
+    expected_events_2.emplace_back(5 + 7, 4, 0, 6400);
 
     EXPECT_THAT(events_1, ContainerEq(expected_events_1));
     EXPECT_THAT(events_2, ContainerEq(expected_events_2));

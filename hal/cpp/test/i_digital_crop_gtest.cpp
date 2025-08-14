@@ -74,8 +74,8 @@ TEST_F_WITH_CAMERA(I_DigitalCrop_GTest, should_have_digital_crop_events_when_ena
 
     EXPECT_TRUE(digital_crop->is_enabled());
 
-    std::vector<EventCD> evt_inside_crop_region;
-    std::vector<EventCD> evt_outside_crop_region;
+    EventsSoA evt_inside_crop_region;
+    EventsSoA evt_outside_crop_region;
 
     stream_n_buffers(10, [&](const EventCD *evt_beg, const EventCD *evt_end) {
         EXPECT_GT(std::distance(evt_beg, evt_end), 0)
@@ -98,8 +98,8 @@ TEST_F_WITH_CAMERA(I_DigitalCrop_GTest, should_have_origin_reset_on_digital_crop
     ASSERT_TRUE(digital_crop);
     auto height = geom->get_height();
 
-    std::vector<EventCD> evt_inside_crop_region;
-    std::vector<EventCD> evt_outside_crop_region;
+    EventsSoA evt_inside_crop_region;
+    EventsSoA evt_outside_crop_region;
 
     digital_crop->enable(true);
     digital_crop->set_window_region({64, 0, 64 + 32, height}, true);
@@ -128,8 +128,8 @@ TEST_F_WITH_CAMERA(I_DigitalCrop_GTest, should_have_digital_NOT_crop_events_when
     digital_crop->enable(false);
     digital_crop->set_window_region({0, 0, 32, height});
 
-    std::vector<EventCD> evt_inside_crop_region;
-    std::vector<EventCD> evt_outside_crop_region;
+    EventsSoA evt_inside_crop_region;
+    EventsSoA evt_outside_crop_region;
 
     stream_n_buffers(100, [&](auto *evt_beg, const EventCD *evt_end) {
         EXPECT_GT(std::distance(evt_beg, evt_end), 0)

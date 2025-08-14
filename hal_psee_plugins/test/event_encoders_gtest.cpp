@@ -14,6 +14,7 @@
 #include <array>
 
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 #include "event_encoder.h"
 #include "evt2_raw_format.h"
 
@@ -35,7 +36,7 @@ TEST_F(EventEncoders_GTest, get_size_encoded) {
 }
 
 TEST_F(EventEncoders_GTest, register_empty_buffer) {
-    std::vector<EventCD> v;
+    EventsSoA v;
     auto it = v.begin(), it_end = v.end();
     BatchEventEncoder<decltype(it)> event_encoder;
     event_encoder.register_buffer(it, it_end);
@@ -44,7 +45,10 @@ TEST_F(EventEncoders_GTest, register_empty_buffer) {
 }
 
 TEST_F(EventEncoders_GTest, register_buffer) {
-    std::vector<EventCD> v = {{1, 2, 0, 153}, {456, 275, 1, 207}, {45, 180, 1, 510}};
+    EventsSoA v;
+    v.emplace_back(1, 2, 0, 153);
+    v.emplace_back(456, 275, 1, 207);
+    v.emplace_back(45, 180, 1, 510);
     auto it = v.begin(), it_end = v.end();
     BatchEventEncoder<decltype(it)> event_encoder;
     event_encoder.register_buffer(it, it_end);
@@ -56,7 +60,10 @@ TEST_F(EventEncoders_GTest, evt2_encode_cd) {
     using Format  = Evt2RawFormat;
     int time_mask = 0x3F; // Take only 6 lower bits
 
-    std::vector<EventCD> v = {{1, 2, 0, 153}, {456, 255, 1, 2407}, {45, 180, 1, 10010}};
+    EventsSoA v;
+    v.emplace_back(1, 2, 0, 153);
+    v.emplace_back(456, 255, 1, 2407);
+    v.emplace_back(45, 180, 1, 10010);
     auto it = v.begin(), it_end = v.end();
     BatchEventEncoder<decltype(it)> event_encoder;
     event_encoder.register_buffer(it, it_end);

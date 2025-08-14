@@ -27,7 +27,7 @@ CameraStreamSlicer::CameraStreamSlicer(Camera &&camera, const SliceCondition &sl
             "Camera is already running. Cannot create a CameraStreamSlicer from a running camera.");
     }
 
-    event_buffer_pool_   = SharedObjectPool<std::vector<EventCD>>::make_unbounded();
+    event_buffer_pool_   = SharedObjectPool<EventsSoA>::make_unbounded();
     trigger_buffer_pool_ = SharedObjectPool<std::vector<EventExtTrigger>>::make_unbounded();
     curt_event_buffer_   = event_buffer_pool_.acquire();
     curt_trigger_buffer_ = trigger_buffer_pool_.acquire();

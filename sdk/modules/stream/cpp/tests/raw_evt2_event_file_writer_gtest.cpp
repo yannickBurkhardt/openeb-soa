@@ -13,6 +13,7 @@
 #include <iterator>
 #include <thread>
 #include <gtest/gtest.h>
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/base/utils/generic_header.h"
 #include "metavision/sdk/base/utils/log.h"
 #include "metavision/sdk/base/utils/sdk_log.h"
@@ -143,7 +144,8 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, add_metadata_flush_raw_fail) {
         {
             RAWEvt2EventFileWriter writer(640, 480, tmp_file_path_);
 
-            std::vector<EventCD> events = {EventCD(0, 0, 0, 0)};
+            EventsSoA events;
+            events.emplace_back(EventCD(0, 0, 0, 0));
             writer.add_events(events.data(), events.data() + 1);
             writer.flush();
 
@@ -170,7 +172,7 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, remove_metadata) {
 }
 
 TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_only) {
-    std::vector<EventCD> expected_data_cd;
+    EventsSoA expected_data_cd;
     expected_data_cd.reserve(10000);
     {
         const auto dataset_file_path = std::filesystem::path(GtestsParameters::instance().dataset_dir) / "openeb" /
@@ -200,10 +202,10 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_only) {
         auto data_cd_it = expected_data_cd.cbegin();
         cam.cd().add_callback([&data_cd_it](const EventCD *begin, const EventCD *end) {
             while (begin != end) {
-                EXPECT_EQ(begin->t, data_cd_it->t);
-                EXPECT_EQ(begin->p, data_cd_it->p);
-                EXPECT_EQ(begin->x, data_cd_it->x);
-                EXPECT_EQ(begin->y, data_cd_it->y);
+                EXPECT_EQ(begin->t, (*data_cd_it).t);
+                EXPECT_EQ(begin->p, (*data_cd_it).p);
+                EXPECT_EQ(begin->x, (*data_cd_it).x);
+                EXPECT_EQ(begin->y, (*data_cd_it).y);
                 ++begin;
                 ++data_cd_it;
             }
@@ -219,7 +221,7 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_only) {
 }
 
 TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_trigger) {
-    std::vector<EventCD> expected_data_cd;
+    EventsSoA expected_data_cd;
     expected_data_cd.reserve(10000);
     std::vector<EventExtTrigger> expected_data_trigger;
     expected_data_trigger.reserve(1000);
@@ -257,10 +259,10 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_trigger) {
         auto data_cd_it = expected_data_cd.cbegin();
         cam.cd().add_callback([&data_cd_it](const EventCD *begin, const EventCD *end) {
             while (begin != end) {
-                ASSERT_EQ(begin->t, data_cd_it->t);
-                ASSERT_EQ(begin->p, data_cd_it->p);
-                ASSERT_EQ(begin->x, data_cd_it->x);
-                ASSERT_EQ(begin->y, data_cd_it->y);
+                ASSERT_EQ(begin->t, (*data_cd_it).t);
+                ASSERT_EQ(begin->p, (*data_cd_it).p);
+                ASSERT_EQ(begin->x, (*data_cd_it).x);
+                ASSERT_EQ(begin->y, (*data_cd_it).y);
                 ++begin;
                 ++data_cd_it;
             }
@@ -287,7 +289,7 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_trigger) {
 }
 
 TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_trigger_1s_max_add_latency) {
-    std::vector<EventCD> expected_data_cd;
+    EventsSoA expected_data_cd;
     expected_data_cd.reserve(10000);
     std::vector<EventExtTrigger> expected_data_trigger;
     expected_data_trigger.reserve(1000);
@@ -325,10 +327,10 @@ TEST_F_WITH_DATASET(RAWEvt2EventFileWriter_Gtest, write_raw_cd_trigger_1s_max_ad
         auto data_cd_it = expected_data_cd.cbegin();
         cam.cd().add_callback([&data_cd_it](const EventCD *begin, const EventCD *end) {
             while (begin != end) {
-                ASSERT_EQ(begin->t, data_cd_it->t);
-                ASSERT_EQ(begin->p, data_cd_it->p);
-                ASSERT_EQ(begin->x, data_cd_it->x);
-                ASSERT_EQ(begin->y, data_cd_it->y);
+                ASSERT_EQ(begin->t, (*data_cd_it).t);
+                ASSERT_EQ(begin->p, (*data_cd_it).p);
+                ASSERT_EQ(begin->x, (*data_cd_it).x);
+                ASSERT_EQ(begin->y, (*data_cd_it).y);
                 ++begin;
                 ++data_cd_it;
             }

@@ -36,14 +36,14 @@ template<typename InputIt>
 void HardwareDiffProcessor<InputIt>::compute(const timestamp, InputIt it_begin, InputIt it_end, Tensor &tensor) const {
     auto diff = tensor.data<int8_t>();
     for (auto it = it_begin; it != it_end; ++it) {
-        const unsigned int idx = it->x + it->y * width_;
+        const unsigned int idx = (*it).x + (*it).y * width_;
         int8_t &sum_polarities = diff[idx];
         const bool should_rollover =
-            (sum_polarities == min_val_ && it->p == 0) || (sum_polarities == max_val_ && it->p == 1);
+            (sum_polarities == min_val_ && (*it).p == 0) || (sum_polarities == max_val_ && (*it).p == 1);
         if (!should_rollover) {
-            sum_polarities += (it->p == 0 ? -1 : 1);
+            sum_polarities += ((*it).p == 0 ? -1 : 1);
         } else if (allow_rollover_) {
-            sum_polarities = (it->p == 0 ? max_val_ : min_val_);
+            sum_polarities = ((*it).p == 0 ? max_val_ : min_val_);
         }
         // else sum_polarities is saturated
     }

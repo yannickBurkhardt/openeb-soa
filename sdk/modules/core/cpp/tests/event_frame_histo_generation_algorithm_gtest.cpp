@@ -16,16 +16,28 @@
 #include "metavision/sdk/base/events/event_cd.h"
 #include "metavision/sdk/core/algorithms/event_frame_histo_generation_algorithm.h"
 #include "metavision/sdk/core/utils/raw_event_frame_converter.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 using namespace Metavision;
-using InputIt = std::vector<EventCD>::const_iterator;
+using InputIt = EventsSoA::const_iterator;
 
 TEST(EventFrameHistoGenerationAlgorithm_GTest, nominal) {
     // GIVEN a 3x2 toy event stream
     const unsigned int width = 3, height = 2;
-    std::vector<EventCD> events = {EventCD(0, 0, 0, 1), EventCD(2, 0, 0, 1), EventCD(0, 1, 1, 1), EventCD(2, 1, 1, 1),
-                                   EventCD(0, 0, 1, 2), EventCD(2, 0, 1, 2), EventCD(0, 1, 1, 2), EventCD(2, 1, 0, 2),
-                                   EventCD(0, 0, 0, 3), EventCD(2, 0, 1, 3), EventCD(0, 1, 0, 3), EventCD(2, 1, 0, 3)};
+    EventsSoA events;
+    events.emplace_back(EventCD(0, 0, 0, 1));
+    events.emplace_back(EventCD(2, 0, 0, 1));
+    events.emplace_back(EventCD(0, 1, 1, 1));
+    events.emplace_back(EventCD(2, 1, 1, 1));
+    events.emplace_back(EventCD(0, 0, 1, 2));
+    events.emplace_back(EventCD(2, 0, 1, 2));
+    events.emplace_back(EventCD(0, 1, 1, 2));
+    events.emplace_back(EventCD(2, 1, 0, 2));
+    events.emplace_back(EventCD(0, 0, 0, 3));
+    events.emplace_back(EventCD(2, 0, 1, 3));
+    events.emplace_back(EventCD(0, 1, 0, 3));
+    events.emplace_back(EventCD(2, 1, 0, 3));
+
     // GIVEN a EventFrameHistoGenerationAlgorithm instance
     const unsigned int bit_size_neg = 4, bit_size_pos = 4;
     const bool packed = false;
@@ -56,7 +68,7 @@ TEST(EventFrameHistoGenerationAlgorithm_GTest, nominal) {
 TEST(EventFrameHistoGenerationAlgorithm_GTest, saturation) {
     // GIVEN a 1x1 toy event stream with 20 negative events and 20 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 20; ++i) {
         events.emplace_back(0, 0, 0, t++);
@@ -84,9 +96,20 @@ TEST(EventFrameHistoGenerationAlgorithm_GTest, saturation) {
 TEST(EventFrameHistoGenerationAlgorithm_GTest, packed) {
     // GIVEN a 3x2 toy event stream
     const unsigned int width = 3, height = 2;
-    std::vector<EventCD> events = {EventCD(0, 0, 0, 1), EventCD(2, 0, 0, 1), EventCD(0, 1, 1, 1), EventCD(2, 1, 1, 1),
-                                   EventCD(0, 0, 1, 2), EventCD(2, 0, 1, 2), EventCD(0, 1, 1, 2), EventCD(2, 1, 0, 2),
-                                   EventCD(0, 0, 0, 3), EventCD(2, 0, 1, 3), EventCD(0, 1, 0, 3), EventCD(2, 1, 0, 3)};
+    EventsSoA events;
+    events.emplace_back(EventCD(0, 0, 0, 1));
+    events.emplace_back(EventCD(2, 0, 0, 1));
+    events.emplace_back(EventCD(0, 1, 1, 1));
+    events.emplace_back(EventCD(2, 1, 1, 1));
+    events.emplace_back(EventCD(0, 0, 1, 2));
+    events.emplace_back(EventCD(2, 0, 1, 2));
+    events.emplace_back(EventCD(0, 1, 1, 2));
+    events.emplace_back(EventCD(2, 1, 0, 2));
+    events.emplace_back(EventCD(0, 0, 0, 3));
+    events.emplace_back(EventCD(2, 0, 1, 3));
+    events.emplace_back(EventCD(0, 1, 0, 3));
+    events.emplace_back(EventCD(2, 1, 0, 3));
+
     // GIVEN a EventFrameHistoGenerationAlgorithm instance
     const unsigned int bit_size_neg = 4, bit_size_pos = 4;
     const bool packed = true;
@@ -111,9 +134,20 @@ TEST(EventFrameHistoGenerationAlgorithm_GTest, packed) {
 TEST(EventFrameHistoGenerationAlgorithm_GTest, compatibility_with_RawEventFrameConverter) {
     // GIVEN a 3x2 toy event stream
     const unsigned int width = 3, height = 2;
-    std::vector<EventCD> events = {EventCD(0, 0, 0, 1), EventCD(2, 0, 0, 1), EventCD(0, 1, 1, 1), EventCD(2, 1, 1, 1),
-                                   EventCD(0, 0, 1, 2), EventCD(2, 0, 1, 2), EventCD(0, 1, 1, 2), EventCD(2, 1, 0, 2),
-                                   EventCD(0, 0, 0, 3), EventCD(2, 0, 1, 3), EventCD(0, 1, 0, 3), EventCD(2, 1, 0, 3)};
+    EventsSoA events;
+    events.emplace_back(EventCD(0, 0, 0, 1));
+    events.emplace_back(EventCD(2, 0, 0, 1));
+    events.emplace_back(EventCD(0, 1, 1, 1));
+    events.emplace_back(EventCD(2, 1, 1, 1));
+    events.emplace_back(EventCD(0, 0, 1, 2));
+    events.emplace_back(EventCD(2, 0, 1, 2));
+    events.emplace_back(EventCD(0, 1, 1, 2));
+    events.emplace_back(EventCD(2, 1, 0, 2));
+    events.emplace_back(EventCD(0, 0, 0, 3));
+    events.emplace_back(EventCD(2, 0, 1, 3));
+    events.emplace_back(EventCD(0, 1, 0, 3));
+    events.emplace_back(EventCD(2, 1, 0, 3));
+
     // GIVEN a EventFrameHistoGenerationAlgorithm instance
     const unsigned int bit_size_neg = 4, bit_size_pos = 4;
     const bool packed = true;
@@ -146,7 +180,7 @@ TEST(EventFrameHistoGenerationAlgorithm_GTest, compatibility_with_RawEventFrameC
 TEST(EventFrameHistoGenerationAlgorithm_GTest, saturation_low_bit_sizes) {
     // GIVEN a 1x1 toy event stream with 20 negative events and 20 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 5; ++i) {
         events.emplace_back(0, 0, 0, t++);
@@ -174,7 +208,7 @@ TEST(EventFrameHistoGenerationAlgorithm_GTest, saturation_low_bit_sizes) {
 TEST(EventFrameHistoGenerationAlgorithm_GTest, lowerbound_generation_period) {
     // GIVEN a 1x1 toy event stream with 21 negative events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     for (int t = 0; t < 21; ++t) {
         events.emplace_back(0, 0, 0, 1 + t);
     }

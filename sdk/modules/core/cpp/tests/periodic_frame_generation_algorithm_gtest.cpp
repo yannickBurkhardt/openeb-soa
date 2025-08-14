@@ -15,6 +15,7 @@
 
 #include "metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h"
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 using namespace Metavision;
 
@@ -55,10 +56,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, nominal_with_ts_0_for_initializatio
     frame_generation.set_fps(fps);
 
     // GIVEN the following events in the time slice [0, period_us[ and [period_us, 2*period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, period_us - accumulation_time_us + 50},
-                                 EventCD{0, 0, 0, 2 * period_us - accumulation_time_us + 50}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{0, 0, 0, 2 * period_us - accumulation_time_us + 50});
 
     // WHEN we process the events...
     std::vector<FrameData> generated_frames;
@@ -114,11 +116,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, nominal_with_offset_overflow) {
     const timestamp offset_overflow_time_base =
         static_cast<timestamp>(std::numeric_limits<std::int32_t>::max()) + 150459;
     const timestamp expected_first_timeslice = period_us * (offset_overflow_time_base / period_us);
-    std::vector<EventCD> events{
-        {EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},
-         EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},
-         EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},
-         EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});
+    events.emplace_back(EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50});
 
     // WHEN we process the events...
     std::vector<FrameData> generated_frames;
@@ -178,9 +180,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, no_underflow_with_offset_overflow) 
     const timestamp t_after_underflow       = t32i_after_underflow;
     const timestamp t_period_accumulating_underflowed_ev =
         period_us * ((t_after_underflow + 2 * t_max_32i) / period_us);
-    std::vector<EventCD> events{{EventCD{0, 0, 0, t_init}, EventCD{0, 1, 0, t_max_32i + 1},
-                                 EventCD{1, 0, 0, 2 * t_max_32i + 1},
-                                 EventCD{2, 0, 0, t_period_accumulating_underflowed_ev + period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, t_init});
+    events.emplace_back(EventCD{0, 1, 0, t_max_32i + 1});
+    events.emplace_back(EventCD{1, 0, 0, 2 * t_max_32i + 1});
+    events.emplace_back(                   EventCD{2, 0, 0, t_period_accumulating_underflowed_ev + period_us});
 
     // WHEN we process the events
     FrameData last_generated_frame;
@@ -219,14 +223,15 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, continuity_preserved_with_offset_ov
     const timestamp t_max_32i                      = std::numeric_limits<std::int32_t>::max();
     const timestamp t_first_overflowing_timeslice  = period_us * (t_max_32i / period_us) + period_us;
     const timestamp t_fourth_overflowing_timeslice = period_us * (4 * t_max_32i / period_us) + period_us;
-    std::vector<EventCD> events{{EventCD{0, 0, 0, t_first_overflowing_timeslice - 2 * period_us + 10},
-                                 EventCD{1, 0, 0, t_first_overflowing_timeslice - period_us + 10},
-                                 EventCD{2, 0, 0, t_first_overflowing_timeslice + 10},
-                                 EventCD{3, 0, 0, t_first_overflowing_timeslice + period_us},
-                                 EventCD{0, 1, 0, t_fourth_overflowing_timeslice - 2 * period_us + 10},
-                                 EventCD{1, 1, 0, t_fourth_overflowing_timeslice - period_us + 10},
-                                 EventCD{2, 1, 0, t_fourth_overflowing_timeslice + 10},
-                                 EventCD{3, 1, 0, t_fourth_overflowing_timeslice + period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, t_first_overflowing_timeslice - 2 * period_us + 10});
+    events.emplace_back(EventCD{1, 0, 0, t_first_overflowing_timeslice - period_us + 10});
+    events.emplace_back(EventCD{2, 0, 0, t_first_overflowing_timeslice + 10});
+    events.emplace_back(EventCD{3, 0, 0, t_first_overflowing_timeslice + period_us});
+    events.emplace_back(EventCD{0, 1, 0, t_fourth_overflowing_timeslice - 2 * period_us + 10});
+    events.emplace_back(EventCD{1, 1, 0, t_fourth_overflowing_timeslice - period_us + 10});
+    events.emplace_back(EventCD{2, 1, 0, t_fourth_overflowing_timeslice + 10});
+    events.emplace_back(EventCD{3, 1, 0, t_fourth_overflowing_timeslice + period_us});
 
     // WHEN we process the events
     FrameData generated_frame_overflow1, generated_frame_overflow4;
@@ -279,11 +284,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, nominal_with_arbitrary_ts_for_initi
     const timestamp expected_first_timeslice = period_us * (arbitrary_time_base / period_us); // 1.200.000
 
     // clang-format off
-    std::vector<EventCD> events{{
-         EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},       // ts = 1.289.970
-         EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},            // ts = 1.290.000
-         EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},       // ts = 1.290.030
-         EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}}}; // ts = 1.390.050
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});       // ts = 1.289.970
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});            // ts = 1.290.000
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});       // ts = 1.290.030
+    events.emplace_back(EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}); // ts = 1.390.050
     // clang-format on
 
     // WHEN we process the events...
@@ -391,12 +396,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, reset_with_change_of_settings) {
 
     // GIVEN the following events
     // clang-format off
-    std::vector<EventCD> events{{
-         EventCD{5, 1, 0, 970},
-         EventCD{5, 5, 0, 1000},
-         EventCD{5, 8, 1, 1030},
-         EventCD{0, 0, 0, 1050}
-    }};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, 970});
+    events.emplace_back(EventCD{5, 5, 0, 1000});
+    events.emplace_back(EventCD{5, 8, 1, 1030});
+    events.emplace_back(EventCD{0, 0, 0, 1050});
     // clang-format on
 
     // WHEN we process the events then flush
@@ -439,11 +443,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, change_display_acc) {
     // [first_timeslice + period_us, first_timeslice + 2*period_us[ and the above parameters
     const timestamp arbitrary_time_base      = 1255341;
     const timestamp expected_first_timeslice = period_us * (arbitrary_time_base / period_us);
-    std::vector<EventCD> events{
-        {EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},
-         EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},
-         EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},
-         EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});
+    events.emplace_back(  EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50});
 
     // WHEN we process the events...
     std::vector<FrameData> generated_frames;
@@ -503,11 +507,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, colors) {
     // [first_timeslice + period_us, first_timeslice + 2*period_us[ and the above parameters
     const timestamp arbitrary_time_base      = 1255341;
     const timestamp expected_first_timeslice = period_us * (arbitrary_time_base / period_us);
-    std::vector<EventCD> events{
-        {EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},
-         EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},
-         EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},
-         EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});
+    events.emplace_back(EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50});
 
     // WHEN we process the events...
     std::vector<FrameData> generated_frames;
@@ -571,12 +575,12 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, fps) {
     const timestamp expected_first_timeslice = period_us * (arbitrary_time_base / period_us); // = 1200000
 
     // clang-format off
-    std::vector<EventCD> events{{
-         EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},                  // ts = 1289970
-         EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},                       // ts = 1290000
-         EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},                  // ts = 1290030
-         EventCD{4, 0, 1, expected_first_timeslice + period_us + next_period_us - accumulation_time_us + 10}, // ts = 1300010
-         EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50}}};            // ts = 1390050
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});                  // ts = 1289970
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});                       // ts = 1290000
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});                  // ts = 1290030
+    events.emplace_back(EventCD{4, 0, 1, expected_first_timeslice + period_us + next_period_us - accumulation_time_us + 10}); // ts = 1300010
+    events.emplace_back(EventCD{0, 0, 0, expected_first_timeslice + 2 * period_us - accumulation_time_us + 50});            // ts = 1390050
     // clang-format on
 
     // WHEN we process the first 3 events...
@@ -658,10 +662,11 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, skip_frames_to) {
     frame_generation.set_fps(fps);
 
     // GIVEN A vector of vector of events to process with timestamp belonging to consecutive time slices
-    std::vector<std::vector<EventCD>> events{{EventCD{5, 1, 0, period_us - accumulation_time_us + 10}},
-                                             {EventCD{5, 2, 1, 2 * period_us - accumulation_time_us + 10}},
-                                             {EventCD{5, 8, 0, 3 * period_us - accumulation_time_us + 10}},
-                                             {EventCD{5, 4, 1, 4 * period_us - accumulation_time_us + 10}}};
+    std::vector<EventsSoA> events{{}, {}, {}, {}};
+    events[0].emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us + 10});
+    events[1].emplace_back(EventCD{5, 2, 1, 2 * period_us - accumulation_time_us + 10});
+    events[2].emplace_back(EventCD{5, 8, 0, 3 * period_us - accumulation_time_us + 10});
+    events[3].emplace_back(EventCD{5, 4, 1, 4 * period_us - accumulation_time_us + 10});
 
     // WHEN Skipping frame generation until the 4th buffer event's timestamp
     frame_generation.skip_frames_up_to(events.back().back().t);
@@ -717,7 +722,7 @@ TEST(PeriodicFrameGenerationAlgorithm_GTest, test_doc_example_output) {
         }
         is << std::endl;
     });
-    std::vector<EventCD> stream_of_events;
+    EventsSoA stream_of_events;
 
     // Given the following events:
     // - x = 0, y = 0, p = 1, t = 0

@@ -13,6 +13,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/stream/camera.h"
 #include "metavision/sdk/stream/internal/event_file_writer_internal.h"
 

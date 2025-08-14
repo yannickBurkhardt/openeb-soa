@@ -34,10 +34,10 @@ void TimeSurfaceProcessor<InputIt, CHANNELS>::compute(const timestamp, InputIt i
                                                       Tensor &tensor) const {
     auto buffer = tensor.data<timestamp>();
     for (auto it = it_begin; it != it_end; ++it) {
-        assert(it->p == 0 || it->p == 1);
-        const auto c  = (CHANNELS == 1) ? 0 : it->p;
-        const int idx = CHANNELS * (width_ * it->y + it->x) + c;
-        buffer[idx]   = it->t;
+        assert((*it).p == 0 || (*it).p == 1);
+        const auto c  = (CHANNELS == 1) ? 0 : (*it).p;
+        const int idx = CHANNELS * (width_ * (*it).y + (*it).x) + c;
+        buffer[idx]   = (*it).t;
     }
 }
 

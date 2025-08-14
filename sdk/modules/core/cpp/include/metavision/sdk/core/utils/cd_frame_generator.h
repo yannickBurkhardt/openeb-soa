@@ -13,6 +13,7 @@
 #define METAVISION_SDK_CORE_CD_FRAME_GENERATOR_H
 
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h"
 #include "metavision/sdk/core/utils/threaded_process.h"
 
@@ -96,7 +97,7 @@ private:
         timestamp ts_us_;
     };
     std::vector<FrameEvent> frames_;
-    std::vector<EventCD> events_front_, events_back_;
+    EventsSoA events_front_, events_back_;
     size_t frames_count_{0};
 
     // Is frame dropping allowed?

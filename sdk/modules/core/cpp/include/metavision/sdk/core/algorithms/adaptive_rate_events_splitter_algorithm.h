@@ -13,6 +13,7 @@
 #define METAVISION_SDK_CORE_ADAPTIVE_RATE_EVENTS_SPLITTER_ALGORITHM_H
 
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 #include <cmath>
 #include <assert.h>
 
@@ -51,7 +52,7 @@ public:
     /// @brief Retrieves the slice of events and resets internal state
     ///
     /// @param out_vec output vector of events
-    void retrieve_events(std::vector<EventCD> &out_vec) {
+    void retrieve_events(EventsSoA &out_vec) {
         out_vec.clear();
         out_vec.swap(events_);
         reset_local_variables();
@@ -84,7 +85,7 @@ private:
     float one_over_height_times_width_;
     float one_over_height_times_width_squared_;
 
-    std::vector<EventCD> events_;
+    EventsSoA events_;
 
     static constexpr float kMaxRatioBothPix = 0.1f;
 };

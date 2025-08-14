@@ -42,8 +42,9 @@ TEST_F(CDFrameGenerator_GTest, frame_size) {
             cb_called       = true;
         });
 
-    std::vector<Metavision::EventCD> events = {Metavision::EventCD(5, 10, 0, 1500),
-                                               Metavision::EventCD(5, 10, 0, 1500000)};
+    Metavision::EventsSoA events;
+    events.emplace_back(Metavision::EventCD(5, 10, 0, 1500));
+    events.emplace_back(Metavision::EventCD(5, 10, 0, 1500000));
     cd_frame_generator.add_events(events.data(), events.data() + events.size());
 
     while (!cb_called) {
@@ -74,7 +75,7 @@ TEST_F(CDFrameGenerator_GTest, generate_only_latest_frame) {
         ++cb_count;
     });
 
-    std::vector<Metavision::EventCD> events = {
+    std::vector<Metavision::EventCD> events_cd = {
         Metavision::EventCD(234, 193, 1, 1000000 - 500000 + 2), Metavision::EventCD(252, 193, 1, 1000000 - 500000 + 2),
         Metavision::EventCD(213, 193, 1, 1000000 - 500000 + 2), Metavision::EventCD(219, 193, 0, 1000000 - 500000 + 2),
         Metavision::EventCD(218, 193, 0, 2000000 - 500000 + 2), Metavision::EventCD(207, 193, 0, 2000000 - 500000 + 2),
@@ -89,6 +90,10 @@ TEST_F(CDFrameGenerator_GTest, generate_only_latest_frame) {
         Metavision::EventCD(260, 222, 1, 6000000 - 500000 + 2), Metavision::EventCD(228, 220, 1, 6000000 - 500000 + 2),
         Metavision::EventCD(239, 220, 1, 7000000 - 500000 + 2), Metavision::EventCD(244, 220, 1, 7000000 - 500000 + 2),
         Metavision::EventCD(242, 220, 1, 7000000 - 500000 + 2), Metavision::EventCD(257, 220, 1, 7000000 - 500000 + 2)};
+    Metavision::EventsSoA events;
+    for (const auto& e : events_cd) {
+        events.emplace_back(e);
+    }
 
     cd_frame_generator.add_events(events.data(), events.data() + events.size());
 
@@ -109,10 +114,10 @@ TEST_F(CDFrameGenerator_GTest, generate_only_latest_frame) {
     expected_cd_frames.push_back(cv::Mat(height, width, CV_8UC1, 128));
 
     for (auto ev = events.cend() - 8; ev < events.cend() - 4; ++ev) {
-        expected_cd_frames[0].at<std::uint8_t>(ev->y, ev->x) = ev->p * 255;
+        expected_cd_frames[0].at<std::uint8_t>((*ev).y, (*ev).x) = (*ev).p * 255;
     }
     for (auto ev = events.cend() - 4; ev < events.cend(); ++ev) {
-        expected_cd_frames[1].at<std::uint8_t>(ev->y, ev->x) = ev->p * 255;
+        expected_cd_frames[1].at<std::uint8_t>((*ev).y, (*ev).x) = (*ev).p * 255;
     }
 
     for (int i = 0; i < 2; ++i) {
@@ -141,7 +146,7 @@ TEST_F(CDFrameGenerator_GTest, generate_all_frames) {
         ++cb_count;
     });
 
-    std::vector<Metavision::EventCD> events = {
+    std::vector<Metavision::EventCD> events_cd = {
         Metavision::EventCD(234, 193, 1, 1000000 - 500000 + 2), Metavision::EventCD(252, 193, 1, 1000000 - 500000 + 2),
         Metavision::EventCD(213, 193, 1, 1000000 - 500000 + 2), Metavision::EventCD(219, 193, 0, 1000000 - 500000 + 2),
         Metavision::EventCD(218, 193, 0, 2000000 - 500000 + 2), Metavision::EventCD(207, 193, 0, 2000000 - 500000 + 2),
@@ -156,6 +161,10 @@ TEST_F(CDFrameGenerator_GTest, generate_all_frames) {
         Metavision::EventCD(260, 222, 1, 6000000 - 500000 + 2), Metavision::EventCD(228, 220, 1, 6000000 - 500000 + 2),
         Metavision::EventCD(239, 220, 1, 7000000 - 500000 + 2), Metavision::EventCD(244, 220, 1, 7000000 - 500000 + 2),
         Metavision::EventCD(242, 220, 1, 7000000 - 500000 + 2), Metavision::EventCD(257, 220, 1, 7000000 - 500000 + 2)};
+    Metavision::EventsSoA events;
+    for (const auto& e : events_cd) {
+        events.emplace_back(e);
+    }
 
     cd_frame_generator.add_events(events.data(), events.data() + events.size());
 
@@ -171,7 +180,7 @@ TEST_F(CDFrameGenerator_GTest, generate_all_frames) {
     for (int i = 0; i < 7; ++i) {
         expected_cd_frames.push_back(cv::Mat(height, width, CV_8UC1, 128));
         for (auto ev = events.cbegin() + i * 4; ev < events.cbegin() + (i + 1) * 4; ++ev) {
-            expected_cd_frames.back().at<std::uint8_t>(ev->y, ev->x) = ev->p * 255;
+            expected_cd_frames.back().at<std::uint8_t>((*ev).y, (*ev).x) = (*ev).p * 255;
         }
     }
 

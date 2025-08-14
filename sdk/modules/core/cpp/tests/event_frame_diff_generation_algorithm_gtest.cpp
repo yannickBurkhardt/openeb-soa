@@ -13,17 +13,28 @@
 #include <vector>
 #include <opencv2/core.hpp>
 
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/core/algorithms/event_frame_diff_generation_algorithm.h"
 
 using namespace Metavision;
-using InputIt = std::vector<EventCD>::const_iterator;
+using InputIt = EventsSoA::const_iterator;
 
 TEST(EventFrameDiffGenerationAlgorithm_GTest, nominal) {
     // GIVEN a 3x2 toy event stream
     const unsigned int width = 3, height = 2;
-    std::vector<EventCD> events = {EventCD(0, 0, 0, 1), EventCD(2, 0, 0, 1), EventCD(0, 1, 1, 1), EventCD(2, 1, 1, 1),
-                                   EventCD(0, 0, 1, 2), EventCD(2, 0, 1, 2), EventCD(0, 1, 1, 2), EventCD(2, 1, 0, 2),
-                                   EventCD(0, 0, 0, 3), EventCD(2, 0, 1, 3), EventCD(0, 1, 0, 3), EventCD(2, 1, 0, 3)};
+    EventsSoA events;
+    events.emplace_back(EventCD(0, 0, 0, 1));
+    events.emplace_back(EventCD(2, 0, 0, 1));
+    events.emplace_back(EventCD(0, 1, 1, 1));
+    events.emplace_back(EventCD(2, 1, 1, 1));
+    events.emplace_back(EventCD(0, 0, 1, 2));
+    events.emplace_back(EventCD(2, 0, 1, 2));
+    events.emplace_back(EventCD(0, 1, 1, 2));
+    events.emplace_back(EventCD(2, 1, 0, 2));
+    events.emplace_back(EventCD(0, 0, 0, 3));
+    events.emplace_back(EventCD(2, 0, 1, 3));
+    events.emplace_back(EventCD(0, 1, 0, 3));
+    events.emplace_back(EventCD(2, 1, 0, 3));
     // GIVEN a EventFrameDiffGenerationAlgorithm instance
     EventFrameDiffGenerationAlgorithm<InputIt> diff_generator(width, height);
 
@@ -46,7 +57,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, nominal) {
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_no_rollover) {
     // GIVEN a 1x1 toy event stream with 150 negative events and 50 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 150; ++i) {
         events.emplace_back(0, 0, 0, t++);
@@ -73,7 +84,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_no_rollover) {
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_with_rollover) {
     // GIVEN a 1x1 toy event stream with 150 negative events and 50 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 150; ++i) {
         events.emplace_back(0, 0, 0, t++);
@@ -100,7 +111,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_with_rollover) {
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_no_rollover_low_bit_size) {
     // GIVEN a 1x1 toy event stream with 5 negative events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     for (int t = 0; t < 5; ++t) {
         events.emplace_back(0, 0, 0, 1 + t);
     }
@@ -123,7 +134,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_negatives_no_rollover_low_bit
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_no_rollover) {
     // GIVEN a 1x1 toy event stream with 150 positive events and 50 negative events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 150; ++i) {
         events.emplace_back(0, 0, 1, t++);
@@ -150,7 +161,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_no_rollover) {
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_with_rollover) {
     // GIVEN a 1x1 toy event stream with 150 positive events and 50 negative events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     timestamp t = 1;
     for (int i = 0; i < 150; ++i) {
         events.emplace_back(0, 0, 1, t++);
@@ -177,7 +188,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_with_rollover) {
 TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_no_rollover_low_bit_size) {
     // GIVEN a 1x1 toy event stream with 5 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     for (int t = 0; t < 5; ++t) {
         events.emplace_back(0, 0, 1, 1 + t);
     }
@@ -200,7 +211,7 @@ TEST(EventFrameDiffGenerationAlgorithm_GTest, many_positives_no_rollover_low_bit
 TEST(EventFrameDiffGenerationAlgorithm_GTest, lowerbound_generation_period) {
     // GIVEN a 1x1 toy event stream with 21 positive events
     const unsigned int width = 1, height = 1;
-    std::vector<EventCD> events;
+    EventsSoA events;
     for (int t = 0; t < 21; ++t) {
         events.emplace_back(0, 0, 1, 1 + t);
     }

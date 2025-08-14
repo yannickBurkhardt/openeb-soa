@@ -15,6 +15,7 @@
 
 #include "metavision/sdk/core/algorithms/on_demand_frame_generation_algorithm.h"
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 using namespace Metavision;
 
@@ -105,9 +106,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, default_parameters) {
     OnDemandFrameGenerationAlgorithm frame_generation(sensor_width, sensor_height);
 
     // GIVEN the following events in the timeslice [0, period_us[ and default parameters set
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, period_us});
 
     cv::Mat generated;
     timestamp generated_ts = period_us;
@@ -152,10 +155,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, default_parameters) {
         std::equal(expected_frame.begin<cv::Vec3b>(), expected_frame.end<cv::Vec3b>(), generated.begin<cv::Vec3b>()));
 
     // WHEN we process the same events but shifted in time by period_us
-    events = std::vector<EventCD>{{EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30},
-                                   EventCD{5, 5, 0, 2 * period_us - accumulation_time_us},
-                                   EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50},
-                                   EventCD{5, 9, 0, 2 * period_us}}};
+    events = {};
+    events.emplace_back(EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, 2 * period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, 2 * period_us});
     frame_generation.process_events(events.cbegin(), events.cend());
     generated_ts = 2 * period_us;
     frame_generation.generate(generated_ts, generated);
@@ -183,8 +187,10 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, accumulation_time_only) {
 
     // GIVEN the following events in the timeslice [0, period_us] and only accumulation time parameter set (next
     // frame's timestamp is unknown)
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us},
-                                 EventCD{5, 5, 0, period_us - accumulation_time_us + 50}, EventCD{5, 8, 1, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 5, 0, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 8, 1, period_us});
 
     cv::Mat generated;
     const timestamp generated_ts = period_us;
@@ -218,9 +224,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, nominal_with_ts_0_for_initializatio
     frame_generation.set_colors(bg_color, on_color, off_color, colored);
 
     // GIVEN the following events in the timeslice [0, period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 1, period_us - accumulation_time_us},
-                                 EventCD{5, 8, 0, period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 1, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 0, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, period_us});
 
     cv::Mat generated;
     const timestamp generated_ts = period_us;
@@ -258,10 +266,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, nominal_with_offset_overflow) {
     const timestamp offset_overflow_time_base =
         static_cast<timestamp>(std::numeric_limits<std::int32_t>::max()) + 150459;
     const timestamp expected_first_timeslice = period_us * (offset_overflow_time_base / period_us);
-    std::vector<EventCD> events{{EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30},
-                                 EventCD{5, 9, 0, expected_first_timeslice + period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, expected_first_timeslice + period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, expected_first_timeslice + period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, expected_first_timeslice + period_us - accumulation_time_us + 30});
+    events.emplace_back(EventCD{5, 9, 0, expected_first_timeslice + period_us});
 
     cv::Mat generated;
     const timestamp generated_ts = expected_first_timeslice + period_us;
@@ -294,9 +303,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, reset) {
     frame_generation.set_colors(bg_color, on_color, off_color, colored);
 
     // GIVEN the following events in the timeslice [0, period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, period_us});
 
     cv::Mat generated;
     timestamp generated_ts = period_us;
@@ -343,10 +354,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, generate_frame_in_past) {
     frame_generation.set_colors(bg_color, on_color, off_color, colored);
 
     // GIVEN the following events in the timeslice [0, period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, 5 * period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, 5 * period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, 5 * period_us - accumulation_time_us + 50},
-                                 EventCD{5, 9, 0, 5 * period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, 5 * period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, 5 * period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, 5 * period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, 5 * period_us});
 
     cv::Mat generated;
     timestamp generated_ts = 5 * period_us;
@@ -368,9 +380,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, generate_frame_in_past) {
 
     // WHEN we generate a frame in the past with events at same position
     frame_generation.reset();
-    events = {{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-               EventCD{3, 2, 0, period_us - accumulation_time_us},
-               EventCD{7, 4, 1, period_us - accumulation_time_us + 50}, EventCD{6, 5, 0, period_us}}};
+    events = {};
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{3, 2, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{7, 4, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{6, 5, 0, period_us});
 
     generated_ts = period_us;
     frame_generation.process_events(events.cbegin(), events.cend());
@@ -401,10 +415,12 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, change_accumulation_time) {
     frame_generation.set_colors(bg_color, on_color, off_color, colored);
 
     // GIVEN the following events in the timeslice [0, period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 1, period_us - accumulation_time_us},
-                                 EventCD{5, 3, 0, period_us - accumulation_time_us + 2},
-                                 EventCD{5, 8, 1, period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 1, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 3, 0, period_us - accumulation_time_us + 2});
+    events.emplace_back(EventCD{5, 8, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, period_us});
 
     cv::Mat generated;
     timestamp generated_ts = period_us;
@@ -440,10 +456,12 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, change_accumulation_time) {
         std::equal(expected_frame.begin<cv::Vec3b>(), expected_frame.end<cv::Vec3b>(), generated.begin<cv::Vec3b>()));
 
     // WHEN we use new events
-    events = {{EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30},
-               EventCD{5, 5, 1, 2 * period_us - accumulation_time_us},
-               EventCD{5, 3, 0, 2 * period_us - accumulation_time_us + 2},
-               EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, 2 * period_us}}};
+    events = {};
+    events.emplace_back(EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 1, 2 * period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 3, 0, 2 * period_us - accumulation_time_us + 2});
+    events.emplace_back(EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, 2 * period_us});
 
     frame_generation.process_events(events.cbegin(), events.cend());
     generated_ts = 2 * period_us;
@@ -473,9 +491,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, colors) {
     frame_generation.set_colors(bg_color, on_color, off_color, colored);
 
     // GIVEN the following events in the timeslice [0, period_us[ and the above parameters
-    std::vector<EventCD> events{{EventCD{5, 1, 0, period_us - accumulation_time_us - 30},
-                                 EventCD{5, 5, 0, period_us - accumulation_time_us},
-                                 EventCD{5, 8, 1, period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, period_us}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{5, 1, 0, period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, period_us});
 
     cv::Mat generated;
     timestamp generated_ts = period_us;
@@ -510,9 +530,11 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, colors) {
     ASSERT_TRUE(std::equal(expected_frame.begin<uint8_t>(), expected_frame.end<uint8_t>(), generated.begin<uint8_t>()));
 
     // WHEN we use new events
-    events = {{EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30},
-               EventCD{5, 5, 0, 2 * period_us - accumulation_time_us},
-               EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50}, EventCD{5, 9, 0, 2 * period_us}}};
+    events = {};
+    events.emplace_back(EventCD{5, 1, 0, 2 * period_us - accumulation_time_us - 30});
+    events.emplace_back(EventCD{5, 5, 0, 2 * period_us - accumulation_time_us});
+    events.emplace_back(EventCD{5, 8, 1, 2 * period_us - accumulation_time_us + 50});
+    events.emplace_back(EventCD{5, 9, 0, 2 * period_us});
 
     frame_generation.process_events(events.cbegin(), events.cend());
     generated_ts = 2 * period_us;
@@ -546,7 +568,7 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, delay_frame_generation) {
         x = 5 + k - i;
         y = i;
     };
-    std::vector<EventCD> events;
+    EventsSoA events;
     for (int k = 0; k < n_timeslices; k++)
         for (int i = 0; i < n_events_per_slice; i++) {
             int x, y, p;
@@ -602,23 +624,34 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, delay_overlapping_frame_generation)
     //  - ]280, 380]:                      | x    x    x       |
     //  - ]320, 420]:                               |  x               x    x |
     // clang-format off
-        std::vector<EventCD> events{
-            EventCD(8, 1, 0, 210),
-            EventCD(8, 2, 1, 230),
-            EventCD(8, 3, 0, 250),
-            EventCD(8, 4, 1, 290),
-            EventCD(8, 5, 0, 310),
-            EventCD(8, 6, 1, 330),
-            EventCD(8, 7, 0, 390),
-            EventCD(8, 8, 1, 410),
-        };
+        EventsSoA events;
+        events.emplace_back(EventCD(8, 1, 0, 210));
+        events.emplace_back(EventCD(8, 2, 1, 230));
+        events.emplace_back(EventCD(8, 3, 0, 250));
+        events.emplace_back(EventCD(8, 4, 1, 290));
+        events.emplace_back(EventCD(8, 5, 0, 310));
+        events.emplace_back(EventCD(8, 6, 1, 330));
+        events.emplace_back(EventCD(8, 7, 0, 390));
+        events.emplace_back(EventCD(8, 8, 1, 410));
     // clang-format on
-    std::vector<std::vector<EventCD>> events_gt{
-        {EventCD(8, 1, 0, 210), EventCD(8, 2, 1, 230), EventCD(8, 3, 0, 250), EventCD(8, 4, 1, 290)},
-        {EventCD(8, 3, 0, 250), EventCD(8, 4, 1, 290), EventCD(8, 5, 0, 310), EventCD(8, 6, 1, 330)},
-        {EventCD(8, 4, 1, 290), EventCD(8, 5, 0, 310), EventCD(8, 6, 1, 330)},
-        {EventCD(8, 6, 1, 330), EventCD(8, 7, 0, 390), EventCD(8, 8, 1, 410)},
-    };
+    std::vector<EventsSoA> events_gt{{}, {}, {}, {}};
+    events_gt[0].emplace_back(EventCD(8, 1, 0, 210));
+    events_gt[0].emplace_back(EventCD(8, 2, 1, 230));
+    events_gt[0].emplace_back(EventCD(8, 3, 0, 250));
+    events_gt[0].emplace_back(EventCD(8, 4, 1, 290));
+
+    events_gt[0].emplace_back(EventCD(8, 3, 0, 250));
+    events_gt[0].emplace_back(EventCD(8, 4, 1, 290));
+    events_gt[0].emplace_back(EventCD(8, 5, 0, 310));
+    events_gt[0].emplace_back(EventCD(8, 6, 1, 330));
+
+    events_gt[0].emplace_back(EventCD(8, 4, 1, 290));
+    events_gt[0].emplace_back(EventCD(8, 5, 0, 310));
+    events_gt[0].emplace_back(EventCD(8, 6, 1, 330));
+
+    events_gt[0].emplace_back(EventCD(8, 6, 1, 330));
+    events_gt[0].emplace_back(EventCD(8, 7, 0, 390));
+    events_gt[0].emplace_back(EventCD(8, 8, 1, 410));
     std::vector<cv::Mat> generated_frames;
     timestamp generated_ts;
 
@@ -634,7 +667,7 @@ TEST(OnDemandFrameGenerationAlgorithm_GTest, delay_overlapping_frame_generation)
     // THEN we generate the expected frames
     cv::Mat expected_frame(sensor_height, sensor_width, CV_8UC3);
     ASSERT_EQ(events_gt.size(), generated_frames.size());
-    using SizeType = std::vector<std::vector<EventCD>>::size_type;
+    using SizeType = std::vector<EventsSoA>::size_type;
     for (SizeType i = 0; i < events_gt.size(); ++i) {
         expected_frame.setTo(bg_color);
         const auto &evs = events_gt[i];

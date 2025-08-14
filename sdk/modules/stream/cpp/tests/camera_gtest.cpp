@@ -93,7 +93,7 @@ protected:
         log_raw_data_.reset(nullptr);
     }
 
-    std::vector<EventCD> write_evt2_raw_cd_events() {
+    EventsSoA write_evt2_raw_cd_events() {
         auto events = build_vector_of_events<Evt2RawFormat, EventCD>();
         TEncoder<Evt2RawFormat, TimerHighRedundancyEvt2Default> encoder;
         encoder.set_encode_event_callback([&](const uint8_t *data, const uint8_t *data_end) {
@@ -107,7 +107,7 @@ protected:
         return events;
     }
 
-    std::pair<std::vector<EventCD>, std::vector<EventExtTrigger>> write_evt2_raw_cd_and_ext_trigger_events() {
+    std::pair<EventsSoA, std::vector<EventExtTrigger>> write_evt2_raw_cd_and_ext_trigger_events() {
         auto events         = build_vector_of_events<Evt2RawFormat, EventCD>();
         auto events_trigger = build_vector_of_events<Evt2RawFormat, EventExtTrigger>();
         TEncoder<Evt2RawFormat, TimerHighRedundancyEvt2Default> encoder;
@@ -121,8 +121,8 @@ protected:
         return std::make_pair(events, events_trigger);
     }
 
-    std::vector<EventCD> write_evt2_raw_data() {
-        std::vector<EventCD> data;
+    EventsSoA write_evt2_raw_data() {
+        EventsSoA data;
         open_file();
 
         write_header(get_default_header());
@@ -132,7 +132,7 @@ protected:
         return data;
     }
 
-    std::pair<std::vector<EventCD>, std::vector<EventExtTrigger>> write_evt2_raw_data_with_trigger() {
+    std::pair<EventsSoA, std::vector<EventExtTrigger>> write_evt2_raw_data_with_trigger() {
         open_file();
 
         write_header(get_default_header());
@@ -670,7 +670,7 @@ TEST_F(Camera_Gtest, raw_events_callbacks) {
 TEST_F(Camera_Gtest, raw_events_callbacks_decoding_check) {
     const auto expected_events = write_evt2_raw_data();
 
-    std::vector<EventCD> received_events;
+    EventsSoA received_events;
     auto device                                    = DeviceDiscovery::open_raw_file(tmp_file_);
     I_EventsStreamDecoder *i_events_stream_decoder = device->get_facility<I_EventsStreamDecoder>();
     I_EventDecoder<EventCD> *i_cd_events_decoder   = device->get_facility<I_EventDecoder<EventCD>>();
@@ -704,7 +704,7 @@ TEST_F(Camera_Gtest, raw_events_callbacks_decoding_check) {
 
     ASSERT_EQ(expected_events.size(), received_events.size());
 
-    using SizeType = std::vector<EventCD>::size_type;
+    using SizeType = EventsSoA::size_type;
     for (SizeType i = 0; i < expected_events.size(); ++i) {
         ASSERT_EQ(expected_events[i].x, received_events[i].x);
         ASSERT_EQ(expected_events[i].y, received_events[i].y);
@@ -1053,7 +1053,7 @@ TEST_F(Camera_Gtest, test_afk_unsupported_on_rawfile) {
 
 TEST_F(Camera_Gtest, decode_evt2_data) {
     const auto expected_events = write_evt2_raw_data();
-    std::vector<EventCD> received_events;
+    EventsSoA received_events;
     Camera camera;
     try {
         camera = Camera::from_file(tmp_file_, FileConfigHints().real_time_playback(false));
@@ -1071,7 +1071,7 @@ TEST_F(Camera_Gtest, decode_evt2_data) {
     ASSERT_EQ(expected_events.size(), received_events.size());
     timestamp time_shift = -1;
 
-    using SizeType = std::vector<EventCD>::size_type;
+    using SizeType = EventsSoA::size_type;
     for (SizeType i = 0, i_end = expected_events.size(); i < i_end; ++i) {
         ASSERT_EQ(expected_events[i].x, received_events[i].x);
         ASSERT_EQ(expected_events[i].y, received_events[i].y);

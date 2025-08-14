@@ -377,7 +377,7 @@ int main(int argc, char *argv[]) {
         // Start the camera streaming
         camera.start();
 
-        std::vector<Metavision::EventCD> events;
+        Metavision::EventsSoA events;
 
         Data data(geometry.get_width(), geometry.get_height());
         data.camera = &camera;

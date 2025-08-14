@@ -25,7 +25,7 @@ void EventBufferReslicerAlgorithmT<enable_interruptions>::process_events(InputIt
         return;
 
     if (!has_processing_started_) {
-        initialize_processing(it_input_begin->t);
+        initialize_processing((*it_input_begin).t);
     }
 
     auto it_input_curr = it_input_begin;
@@ -40,7 +40,8 @@ void EventBufferReslicerAlgorithmT<enable_interruptions>::process_events(InputIt
         // Process the events until the returned position, if any
         if (it_input_curr != it_buffer_end) {
             n_events_in_current_slice_ += std::distance(it_input_curr, it_buffer_end);
-            curr_slice_last_observed_ts_ = std::prev(it_buffer_end)->t;
+            auto ref = *std::prev(it_buffer_end);
+            curr_slice_last_observed_ts_ = ref.t;
             on_events_cb(it_input_curr, it_buffer_end);
         }
         // If the slicing condition was met, close the current slice and restart a new one before processing the
@@ -108,7 +109,8 @@ typename EventBufferReslicerAlgorithmT<enable_interruptions>::ConditionStatus
                                                                                               InputIt it_end,
                                                                                               InputIt &it_buffer_end) {
     const timestamp next_slice_ref_ts = curr_slice_ref_ts_ + condition_.delta_ts;
-    if (std::prev(it_end)->t < next_slice_ref_ts) {
+    auto ref = *std::prev(it_end);
+    if (ref.t < next_slice_ref_ts) {
         it_buffer_end = it_end;
         return ConditionStatus::NOT_MET;
     }

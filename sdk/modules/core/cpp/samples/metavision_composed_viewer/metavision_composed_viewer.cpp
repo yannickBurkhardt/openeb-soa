@@ -16,6 +16,7 @@
 #include <chrono>
 #include <functional>
 #include <boost/program_options.hpp>
+#include <metavision/sdk/base/events/events_soa.h>
 #include <metavision/sdk/core/algorithms/polarity_filter_algorithm.h>
 #include <metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h>
 #include <metavision/sdk/core/utils/frame_composer.h>
@@ -106,7 +107,7 @@ int main(int argc, char *argv[]) {
     Metavision::PeriodicFrameGenerationAlgorithm right_frame_generator(width, height, accumulation_time_ms * 1000);
     Metavision::PolarityFilterAlgorithm pol_filter(1);
     cam.cd().add_callback([&pol_filter, &right_frame_generator](const Metavision::EventCD *begin, const Metavision::EventCD *end) {
-                              std::vector<Metavision::EventCD> pol_filter_out;
+                              Metavision::EventsSoA pol_filter_out;
                               pol_filter.process_events(begin, end, std::back_inserter(pol_filter_out));
                               right_frame_generator.process_events(pol_filter_out.begin(), pol_filter_out.end());
                           });

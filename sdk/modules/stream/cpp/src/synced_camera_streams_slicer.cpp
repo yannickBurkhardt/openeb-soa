@@ -94,7 +94,7 @@ public:
         camera_.stop();
     }
 
-    void get_sliced_events(std::vector<EventCD> &events, timestamp ts_upper_bound) {
+    void get_sliced_events(EventsSoA &events, timestamp ts_upper_bound) {
         std::unique_lock lock(mtx_);
 
         auto has_slave_events_to_extract = [this, ts_upper_bound]() {
@@ -124,7 +124,7 @@ public:
         }
     }
 
-    void flush(std::vector<EventCD> &events) {
+    void flush(EventsSoA &events) {
         if (state_ != StreamingThreadStatus::OFFLINE) {
             throw std::runtime_error("Cannot flush while the slave source is running");
         }
@@ -136,7 +136,7 @@ public:
 private:
     const timestamp max_duration_;
     const std::size_t max_size_;
-    std::deque<EventCD> events_queue_;
+    EventsSoA events_queue_;
     std::condition_variable master_can_continue_cond_;
     std::condition_variable slave_can_continue_cond_;
 };
@@ -146,7 +146,7 @@ public:
     using QueuePtr = std::shared_ptr<ConcurrentQueue<SyncedSlice>>;
     Master(QueuePtr queue, Camera &&camera, const SliceCondition &slice_condition) :
         Source(std::move(camera)), queue_(std::move(queue)) {
-        event_buffer_pool_          = SharedObjectPool<std::vector<EventCD>>::make_unbounded();
+        event_buffer_pool_          = SharedObjectPool<EventsSoA>::make_unbounded();
         trigger_buffer_pool_        = SharedObjectPool<std::vector<EventExtTrigger>>::make_unbounded();
         curt_event_buffer_master_   = event_buffer_pool_.acquire();
         curt_trigger_buffer_master_ = trigger_buffer_pool_.acquire();
@@ -260,10 +260,10 @@ private:
 
     QueuePtr queue_;
     EventBufferReslicerAlgorithm slicer_;
-    SharedObjectPool<std::vector<EventCD>> event_buffer_pool_;
+    SharedObjectPool<EventsSoA> event_buffer_pool_;
     SharedObjectPool<std::vector<EventExtTrigger>> trigger_buffer_pool_;
-    std::shared_ptr<EventBuffer> curt_event_buffer_master_;
-    std::vector<std::shared_ptr<EventBuffer>> curt_event_buffers_slave_;
+    std::shared_ptr<EventsSoA> curt_event_buffer_master_;
+    std::vector<std::shared_ptr<EventsSoA>> curt_event_buffers_slave_;
     std::shared_ptr<TriggerBuffer> curt_trigger_buffer_master_;
     std::vector<std::unique_ptr<Slave>> slave_sources_;
 };

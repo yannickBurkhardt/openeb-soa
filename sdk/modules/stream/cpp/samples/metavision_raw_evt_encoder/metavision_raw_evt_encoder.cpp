@@ -17,6 +17,7 @@
 #include <iostream>
 #include <thread>
 #include <boost/program_options.hpp>
+#include "metavision/sdk/base/events/events_soa.h"
 #include <metavision/sdk/base/utils/log.h>
 #include <metavision/sdk/core/algorithms/flip_y_algorithm.h>
 #include <metavision/sdk/stream/camera.h>
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
     };
 
     // Define the callback to process the events
-    std::vector<Metavision::EventCD> events;
+    Metavision::EventsSoA events;
     camera.cd().add_callback([&](const Metavision::EventCD *begin, const Metavision::EventCD *end) {
         events.clear();
         yflipper.process_events(begin, end, std::back_inserter(events));

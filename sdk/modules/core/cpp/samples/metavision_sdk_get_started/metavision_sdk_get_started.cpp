@@ -14,6 +14,7 @@
 
 #include <metavision/sdk/stream/camera.h>
 #include <metavision/sdk/base/events/event_cd.h>
+#include "metavision/sdk/base/events/events_soa.h"
 #include <metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h>
 #include <metavision/sdk/core/algorithms/flip_x_algorithm.h>
 #include <metavision/sdk/ui/utils/window.h>
@@ -92,7 +93,7 @@ int main(int argc, char *argv[]) {
     // we add the callback that will pass the events to the algo and then the frame generator
     cam.cd().add_callback([&](const Metavision::EventCD *begin, const Metavision::EventCD *end) {
         // we use a vector of CD events to store the output of the algo
-        std::vector<Metavision::EventCD> output;
+        Metavision::EventsSoA output;
         algo.process_events(begin, end, std::back_inserter(output));
         // we call the frame generator on the processed events
         frame_gen.process_events(output.begin(), output.end());

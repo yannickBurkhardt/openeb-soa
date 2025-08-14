@@ -40,10 +40,10 @@ void export_synced_cameras_stream_slicer(py::module &m) {
             "master_events",
             [](const SyncedSlice &self) {
                 if (self.master_events->empty()) {
-                    return py::array_t<EventCD>(self.master_events->size(), self.master_events->data());
+                    return py::array_t<EventCD>(0, {});
                 }
-                auto capsule = py::capsule(self.master_events->data(), [](void *v) {});
-                return py::array_t<EventCD>(self.master_events->size(), self.master_events->data(), capsule);
+                auto capsule = py::capsule({}, [](void *v) {});
+                return py::array_t<EventCD>(0, {}, capsule);
             },
             pybind_doc_stream["Metavision::SyncedSlice::master_events"])
         .def_property_readonly(
@@ -65,7 +65,7 @@ void export_synced_cameras_stream_slicer(py::module &m) {
                 auto capsule = py::capsule(self.slave_events.data(), [](void *v) {});
 
                 for (const auto &slave_event : self.slave_events) {
-                    slave_events.append(py::array_t<EventCD>(slave_event->size(), slave_event->data(), capsule));
+                    // slave_events.append(py::array_t<EventCD>(slave_event->size(), slave_event->data(), capsule));
                 }
 
                 return slave_events;

@@ -14,6 +14,7 @@
 
 #include "metavision/sdk/core/algorithms/event_buffer_reslicer_algorithm.h"
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 using namespace Metavision;
 
@@ -35,8 +36,8 @@ using TestingTypes = ::testing::Types<TestParams<false>, TestParams<true>>;
 TYPED_TEST_CASE(EventBufferReslicerAlgorithmT_GTest, TestingTypes);
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, identity_mode) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -68,7 +69,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, identity_mode) {
         auto &container = output1.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices1.empty(); ++it) {
-            ASSERT_LE(ts_slices1.back(), it->t);
+            ASSERT_LE(ts_slices1.back(), (*it).t);
         }
     };
     reslicer1.process_events(input.cbegin(), input.cend(), on_ev_cb1);
@@ -103,7 +104,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, identity_mode) {
         auto &container = output2.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices2.empty(); ++it) {
-            ASSERT_LE(ts_slices2.back(), it->t);
+            ASSERT_LE(ts_slices2.back(), (*it).t);
         }
     };
     reslicer2.process_events(input.cbegin(), input.cbegin() + nevents / 2, on_ev_cb2);
@@ -123,8 +124,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, identity_mode) {
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -158,7 +159,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode) {
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cend(), on_ev_cb);
@@ -178,8 +179,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode) {
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode_perfect_size_match) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -212,7 +213,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode_perfect_size_match
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cend(), on_ev_cb);
@@ -228,8 +229,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_events_mode_perfect_size_match
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -261,7 +262,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode) {
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cbegin() + nevents / 2, on_ev_cb);
@@ -286,8 +287,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode) {
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode_perfect_size_match) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -319,7 +320,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode_perfect_size_match) {
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cend(), on_ev_cb);
@@ -333,8 +334,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, n_us_mode_perfect_size_match) {
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -376,7 +377,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode) {
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cend(), on_ev_cb);
@@ -412,8 +413,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode) {
 }
 
 TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode_events_gap) {
-    using EvContainer              = std::vector<EventCD>;
-    using EvIterator               = std::vector<EventCD>::const_iterator;
+    using EvContainer              = EventsSoA;
+    using EvIterator               = EventsSoA::const_iterator;
     using ReslicerAlgorithmType    = typename TypeParam::ReslicerAlgorithmType;
     using ReslicingConditionStatus = typename ReslicerAlgorithmType::ConditionStatus;
     using ReslicingCondition       = typename ReslicerAlgorithmType::Condition;
@@ -455,7 +456,7 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode_events_gap) {
         auto &container = output.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices.empty(); ++it) {
-            ASSERT_LE(ts_slices.back(), it->t);
+            ASSERT_LE(ts_slices.back(), (*it).t);
         }
     };
     reslicer.notify_elapsed_time(6);
@@ -498,8 +499,8 @@ TYPED_TEST(EventBufferReslicerAlgorithmT_GTest, mixed_mode_events_gap) {
 }
 
 TEST(InterruptibleEventBufferReslicerAlgorithm_GTest, interruption_before_end_reached) {
-    using EvContainer = std::vector<EventCD>;
-    using EvIterator  = std::vector<EventCD>::const_iterator;
+    using EvContainer = EventsSoA;
+    using EvIterator  = EventsSoA::const_iterator;
 
     // GIVEN 10 consecutive input events with increasing timestamps from t = 0 to 9
     const std::size_t nevents = 10;
@@ -558,7 +559,7 @@ TEST(InterruptibleEventBufferReslicerAlgorithm_GTest, interruption_before_end_re
         auto &container = output2.back();
         container.insert(container.end(), it_beg, it_end);
         for (auto it = it_beg; it != it_end && !ts_slices2.empty(); ++it) {
-            ASSERT_LE(ts_slices2.back(), it->t);
+            ASSERT_LE(ts_slices2.back(), (*it).t);
         }
     };
     reslicer.process_events(input.cbegin(), input.cend(), on_ev_cb2);

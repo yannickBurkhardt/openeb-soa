@@ -11,11 +11,12 @@
 
 #include <gtest/gtest.h>
 #include <metavision/sdk/base/events/event_cd.h>
+#include <metavision/sdk/base/events/events_soa.h>
 
 #include "metavision/sdk/core/preprocessors/time_surface_processor.h"
 #include "metavision/sdk/core/utils/mostrecent_timestamp_buffer.h"
 
-using InputIt = std::vector<Metavision::EventCD>::const_iterator;
+using InputIt = Metavision::EventsSoA::const_iterator;
 
 class TimeSurfaceProcessorGTest : public ::testing::Test {
 public:
@@ -30,8 +31,13 @@ TEST_F(TimeSurfaceProcessorGTest, test_output_n_positive_events) {
     // GIVEN
     // - a producer that produces a one-channel time surface, and
     // - a buffer of 6 positive events
-    std::vector<Metavision::EventCD> events = {{0, 0, 1, 0}, {1, 0, 1, 1}, {2, 0, 1, 2},
-                                               {0, 1, 1, 3}, {1, 1, 1, 4}, {2, 1, 1, 5}};
+    Metavision::EventsSoA events;
+    events.emplace_back(0, 0, 1, 0);
+    events.emplace_back(1, 0, 1, 1);
+    events.emplace_back(2, 0, 1, 2);
+    events.emplace_back(0, 1, 1, 3);
+    events.emplace_back(1, 1, 1, 4);
+    events.emplace_back(2, 1, 1, 5);
 
     // WHEN
     // We process the events
@@ -60,8 +66,13 @@ TEST_F(TimeSurfaceProcessorGTest, test_output_n_negative_events) {
     // GIVEN
     // - a producer that produces a one-channel time surface, and
     // - a buffer of 6 negative events
-    std::vector<Metavision::EventCD> events = {{0, 0, 0, 0}, {1, 0, 0, 1}, {2, 0, 0, 2},
-                                               {0, 1, 0, 3}, {1, 1, 0, 4}, {2, 1, 0, 5}};
+    Metavision::EventsSoA events;
+    events.emplace_back(0, 0, 0, 0);
+    events.emplace_back(1, 0, 0, 1);
+    events.emplace_back(2, 0, 0, 2);
+    events.emplace_back(0, 1, 0, 3);
+    events.emplace_back(1, 1, 0, 4);
+    events.emplace_back(2, 1, 0, 5);
 
     // WHEN
     // We process the events
@@ -90,8 +101,13 @@ TEST_F(TimeSurfaceProcessorGTest, test_output_n_mixed_positive_and_negative_even
     // GIVEN
     // - a producer that produces a one-channel time surface, and
     // - a buffer of 6 events (mix of positive and negative)
-    std::vector<Metavision::EventCD> events = {{0, 0, 1, 0}, {1, 0, 0, 1}, {2, 0, 1, 2},
-                                               {0, 1, 1, 3}, {1, 1, 0, 4}, {2, 1, 0, 5}};
+    Metavision::EventsSoA events;
+    events.emplace_back(0, 0, 1, 0);
+    events.emplace_back(1, 0, 0, 1);
+    events.emplace_back(2, 0, 1, 2);
+    events.emplace_back(0, 1, 1, 3);
+    events.emplace_back(1, 1, 0, 4);
+    events.emplace_back(2, 1, 0, 5);
 
     // WHEN
     // We process the events
@@ -120,8 +136,13 @@ TEST_F(TimeSurfaceProcessorGTest, test_output_n_mixed_events_two_channels) {
     // GIVEN
     // - a producer that produces a two-channels time surface, and
     // - a buffer of 6 events (mix of positive and negative)
-    std::vector<Metavision::EventCD> events = {{0, 0, 1, 0}, {1, 0, 0, 1}, {2, 0, 1, 2},
-                                               {0, 1, 1, 3}, {1, 1, 0, 4}, {2, 1, 0, 5}};
+    Metavision::EventsSoA events;
+    events.emplace_back(0, 0, 1, 0);
+    events.emplace_back(1, 0, 0, 1);
+    events.emplace_back(2, 0, 1, 2);
+    events.emplace_back(0, 1, 1, 3);
+    events.emplace_back(1, 1, 0, 4);
+    events.emplace_back(2, 1, 0, 5);
 
     // WHEN
     // We process the events
@@ -165,9 +186,16 @@ TEST_F(TimeSurfaceProcessorGTest, test_keeping_history) {
     // - a producer that produces a time surface, and
     // - a buffer of 9 events
     // clang-format off
-    std::vector<Metavision::EventCD> events = {{0, 0, 0, 0}, {1, 0, 0, 1}, {2, 0, 1, 2},
-                                               {0, 1, 1, 3}, {1, 1, 1, 4}, {2, 1, 0, 5},
-                                               {0, 2, 1, 6}, {1, 2, 0, 7}, {2, 2, 1, 8}};
+    Metavision::EventsSoA events;
+    events.emplace_back(0, 0, 0, 0);
+    events.emplace_back(1, 0, 0, 1);
+    events.emplace_back(2, 0, 1, 2);
+    events.emplace_back(0, 1, 1, 3);
+    events.emplace_back(1, 1, 1, 4);
+    events.emplace_back(2, 1, 0, 5);
+    events.emplace_back(0, 2, 1, 6);
+    events.emplace_back(1, 2, 0, 7);
+    events.emplace_back(2, 2, 1, 8);
     // clang-format on
 
     // WHEN

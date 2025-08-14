@@ -72,8 +72,8 @@ protected:
         }
     }
 
-    std::pair<std::vector<EventCD>, std::vector<Metavision::EventExtTrigger>> write_evt2_raw_data_with_trigger() {
-        std::pair<std::vector<EventCD>, std::vector<Metavision::EventExtTrigger>> data;
+    std::pair<EventsSoA, std::vector<Metavision::EventExtTrigger>> write_evt2_raw_data_with_trigger() {
+        std::pair<EventsSoA, std::vector<Metavision::EventExtTrigger>> data;
         open_file();
 
         write_header(get_default_header());
@@ -119,13 +119,13 @@ const std::string PseeRawFileDecoder_Gtest::dummy_events_type_  = "events_type";
 const std::string PseeRawFileDecoder_Gtest::dummy_custom_key_   = "custom";
 const std::string PseeRawFileDecoder_Gtest::dummy_custom_value_ = "field";
 
-using SizeTypeFirst  = std::vector<EventCD>::size_type;
+using SizeTypeFirst  = EventsSoA::size_type;
 using SizeTypeSecond = std::vector<Metavision::EventExtTrigger>::size_type;
 
 TEST_F(PseeRawFileDecoder_Gtest, decode_evt2_data_nominal) {
     // GIVEN a RAW file in EVT2 format with a known content
     const auto expected_events = write_evt2_raw_data_with_trigger();
-    std::vector<EventCD> received_cd_events;
+    EventsSoA received_cd_events;
     std::vector<EventExtTrigger> received_triggers_events;
 
     RawFileConfig cfg;
@@ -182,7 +182,7 @@ TEST_F(PseeRawFileDecoder_Gtest, decode_evt2_data_nominal) {
 TEST_F(PseeRawFileDecoder_Gtest, decode_evt2_data_random_split_in_buffer) {
     // GIVEN a RAW file in EVT2 format with a known content
     const auto expected_events = write_evt2_raw_data_with_trigger();
-    std::vector<EventCD> received_cd_events;
+    EventsSoA received_cd_events;
     std::vector<EventExtTrigger> received_triggers_events;
 
     RawFileConfig cfg;
@@ -249,7 +249,7 @@ TEST_F(PseeRawFileDecoder_Gtest, decode_evt2_data_random_split_in_buffer) {
 TEST_F(PseeRawFileDecoder_Gtest, decode_evt2_data_byte_by_byte) {
     // GIVEN a RAW file in EVT2 format with a known content
     const auto expected_events = write_evt2_raw_data_with_trigger();
-    std::vector<EventCD> received_cd_events;
+    EventsSoA received_cd_events;
     std::vector<EventExtTrigger> received_triggers_events;
 
     RawFileConfig cfg;

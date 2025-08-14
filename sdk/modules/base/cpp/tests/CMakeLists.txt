@@ -13,6 +13,7 @@ set(metavision_sdk_base_tests_srcs
     ${CMAKE_CURRENT_SOURCE_DIR}/log_gtest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/object_pool_gtest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/software_info_gtest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/events_soa_gtest.cpp
 )
 
 add_executable(gtest_metavision_sdk_base ${metavision_sdk_base_tests_srcs})

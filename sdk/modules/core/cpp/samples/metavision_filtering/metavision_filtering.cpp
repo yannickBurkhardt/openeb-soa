@@ -17,6 +17,7 @@
 #include <functional>
 #include <vector>
 #include <boost/program_options.hpp>
+#include <metavision/sdk/base/events/events_soa.h>
 #include <metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h>
 #include <metavision/sdk/core/algorithms/polarity_filter_algorithm.h>
 #include <metavision/sdk/core/algorithms/roi_filter_algorithm.h>
@@ -91,14 +92,14 @@ int main(int argc, char *argv[]) {
             [&roi_filter_enabled, &roi_filter,
              &pol_filter_enabled, &pol_filter,
              &frame_generator](const Metavision::EventCD *begin, const Metavision::EventCD *end) {
-                std::vector<Metavision::EventCD> roi_filter_out;
+                Metavision::EventsSoA roi_filter_out;
                 if (roi_filter_enabled) {
                     roi_filter.process_events(begin, end, std::back_inserter(roi_filter_out));
                     begin = roi_filter_out.data();
                     end = begin + roi_filter_out.size();
                 }
 
-                std::vector<Metavision::EventCD> pol_filter_out;
+                Metavision::EventsSoA pol_filter_out;
                 if (pol_filter_enabled) {
                     pol_filter.process_events(begin, end, std::back_inserter(pol_filter_out));
                     begin = pol_filter_out.data();

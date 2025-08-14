@@ -777,7 +777,7 @@ protected:
         I_EventsStream_GTest::TearDown();
     }
 
-    std::vector<EventCD> events1_, events2_;
+    EventsSoA events1_, events2_;
 };
 
 template<>
@@ -797,7 +797,8 @@ I_EventsStreamDecoder *I_EventsStreamT_GTest<Gen3CDDevice>::create_decoder() {
 
 template<>
 void I_EventsStreamT_GTest<Gen3CDDevice>::build_events() {
-    events1_ = {
+    events1_ = {};
+    std::vector<std::array<int, 4>> values = {
         {16, 345, 1, 1642},   {3, 360, 0, 3292},    {365, 61, 1, 4977},   {119, 44, 0, 6631},   {24, 349, 1, 8258},
         {41, 339, 1, 9908},   {132, 52, 0, 11577},  {373, 106, 1, 13210}, {2, 334, 1, 14842},   {8, 379, 1, 16516},
         {329, 89, 1, 18179},  {45, 380, 1, 19810},  {22, 350, 0, 21510},  {329, 93, 1, 23207},  {67, 249, 0, 24944},
@@ -812,6 +813,9 @@ void I_EventsStreamT_GTest<Gen3CDDevice>::build_events() {
         {40, 287, 1, 96320},  {120, 32, 1, 98113},  {78, 223, 0, 99845},  {53, 336, 1, 101530}, {345, 47, 0, 103286},
         {35, 295, 0, 105032}, {8, 321, 1, 106761},  {254, 36, 1, 108485}, {23, 281, 1, 110214}, {36, 296, 0, 111941},
         {4, 279, 1, 113679},  {239, 51, 1, 115390}, {50, 251, 0, 117156}};
+    for (const auto& vec : values) {
+        events1_.emplace_back(vec[0], vec[1], vec[2], vec[3]);
+    }
 }
 
 typedef ::testing::Types<Gen3CDDevice> TestingTypes;
@@ -891,7 +895,7 @@ TYPED_TEST(I_EventsStreamT_GTest, test_log) {
     // Decoder
     auto decoder = this->create_decoder();
 
-    std::vector<EventCD> decoded_events;
+    EventsSoA decoded_events;
     auto td_decoder = this->device_->template get_facility<I_EventDecoder<EventCD>>();
     td_decoder->add_event_buffer_callback([&decoded_events](const EventCD *begin, const EventCD *end) {
         decoded_events.insert(decoded_events.end(), begin, end);
@@ -903,12 +907,12 @@ TYPED_TEST(I_EventsStreamT_GTest, test_log) {
     auto it_expected = this->events1_.begin();
     auto it          = decoded_events.begin();
 
-    using SizeType = std::vector<EventCD>::size_type;
+    using SizeType = EventsSoA::size_type;
     for (SizeType i = 0, max_i = this->events1_.size(); i < max_i; ++i, ++it, ++it_expected) {
-        EXPECT_EQ(it_expected->x, it->x);
-        EXPECT_EQ(it_expected->y, it->y);
-        EXPECT_EQ(it_expected->p, it->p);
-        EXPECT_EQ(it_expected->t, it->t);
+        EXPECT_EQ((*it_expected).x, (*it).x);
+        EXPECT_EQ((*it_expected).y, (*it).y);
+        EXPECT_EQ((*it_expected).p, (*it).p);
+        EXPECT_EQ((*it_expected).t, (*it).t);
     }
 
     delete[] buffer;

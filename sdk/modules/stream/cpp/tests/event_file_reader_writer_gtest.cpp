@@ -170,7 +170,7 @@ TEST_F_WITH_DATASET(HDF5EventFileReader_Gtest, seek) {
 
 TEST_F(HDF5EventFileReader_Gtest, read_cd_events_written_without_direct_calls) {
     size_t num_expected_events = 2753; // not a multiple of chunk size
-    std::vector<Metavision::EventCD> expected_events(num_expected_events);
+    Metavision::EventsSoA expected_events(num_expected_events);
     std::mt19937 mt_rand; // Mersenne twister
     mt_rand.seed(42);
 
@@ -217,7 +217,8 @@ TEST_F(HDF5EventFileReader_Gtest, read_cd_events_written_without_direct_calls) {
         cd_event_ds_prop.setChunk(1, chunk_dims);
         cd_event_ds_prop.setFilter(H5Z_FILTER_ECF, H5Z_FLAG_OPTIONAL, 0, nullptr);
         H5::DataSet cd_events_dset = file.createDataSet("/CD/events", cd_event_dt, cd_event_ds, cd_event_ds_prop);
-        cd_events_dset.write(&expected_events[0], cd_event_dt);
+        EventCD temp_event = expected_events[0];
+        cd_events_dset.write(&temp_event, cd_event_dt);
 
         // create mandatory datasets, even though we don't test their contents
         H5::CompType cd_index_dt(sizeof(Index));
@@ -252,7 +253,7 @@ TEST_F(HDF5EventFileReader_Gtest, read_cd_events_written_without_direct_calls) {
     {
         // read it back and make sure data is correct
         HDF5EventFileReader reader(tmp_file_);
-        std::vector<Metavision::EventCD> events;
+        Metavision::EventsSoA events;
         reader.add_read_callback(
             [&events](const EventCD *begin, const EventCD *end) { events.insert(events.end(), begin, end); });
         EXPECT_TRUE(events.empty());
@@ -914,7 +915,8 @@ TEST_F_WITH_DATASET(HDF5EventFileWriter_Gtest, add_metata_map_from_camera) {
 TEST_F(HDF5EventFileWriter_Gtest, simple_write_cds) {
     {
         HDF5EventFileWriter writer(tmp_file_);
-        std::vector<EventCD> events{EventCD(0, 0, 0, 0)};
+        EventsSoA events;
+        events.emplace_back(EventCD(0, 0, 0, 0));
         ASSERT_TRUE(writer.add_events(events.data(), events.data() + 1));
     }
 
@@ -965,7 +967,8 @@ TEST_F(HDF5EventFileWriter_Gtest, simple_write_triggers) {
 TEST_F(HDF5EventFileWriter_Gtest, simple_write_cd_and_triggers) {
     {
         HDF5EventFileWriter writer(tmp_file_);
-        std::vector<EventCD> events_cd{EventCD(0, 0, 0, 0)};
+        EventsSoA events_cd;
+        events_cd.emplace_back(EventCD(0, 0, 0, 0));
         ASSERT_TRUE(writer.add_events(events_cd.data(), events_cd.data() + 1));
         std::vector<EventExtTrigger> events_trigger{EventExtTrigger(0, 0, 0)};
         ASSERT_TRUE(writer.add_events(events_trigger.data(), events_trigger.data() + 1));
@@ -1000,7 +1003,8 @@ TEST_F(HDF5EventFileWriter_Gtest, simple_write_cd_and_triggers) {
 
 TEST_F(HDF5EventFileWriter_Gtest, invalid_add_events) {
     HDF5EventFileWriter writer(tmp_file_);
-    std::vector<EventCD> events_cd{EventCD(0, 0, 0, 1)};
+    EventsSoA events_cd;
+    events_cd.emplace_back(EventCD(0, 0, 0, 1));
     ASSERT_TRUE(writer.add_events(events_cd.data(), events_cd.data() + 1));
     events_cd[0] = EventCD(0, 0, 0, 0);
     ASSERT_THROW(writer.add_events(events_cd.data(), events_cd.data() + 1), std::runtime_error);
@@ -1009,10 +1013,10 @@ TEST_F(HDF5EventFileWriter_Gtest, invalid_add_events) {
 TEST_F(HDF5EventFileWriter_Gtest, write_first_ts_is_big) {
     const size_t num_events  = 2;
     const timestamp first_ts = 1000000;
-    std::vector<EventCD> expected_events_cd;
+    EventsSoA expected_events_cd;
     {
         HDF5EventFileWriter writer(tmp_file_);
-        std::vector<EventCD> events_cd(num_events);
+        EventsSoA events_cd(num_events);
         for (size_t i = 0; i < num_events; ++i) {
             events_cd[i].x = 0;
             events_cd[i].y = 0;
@@ -1022,7 +1026,7 @@ TEST_F(HDF5EventFileWriter_Gtest, write_first_ts_is_big) {
         ASSERT_TRUE(writer.add_events(events_cd.data(), events_cd.data() + events_cd.size()));
     }
     {
-        std::vector<EventCD> events_cd;
+        EventsSoA events_cd;
         HDF5EventFileReader reader(tmp_file_);
         reader.add_read_callback(
             [&events_cd](const EventCD *begin, const EventCD *end) { events_cd.insert(events_cd.end(), begin, end); });
@@ -1068,7 +1072,7 @@ TEST_F(HDF5EventFileWriter_Gtest, write_first_ts_is_big) {
 }
 
 TEST_F(HDF5EventFileWriter_Gtest, random_writes) {
-    std::vector<EventCD> expected_events_cd;
+    EventsSoA expected_events_cd;
     std::vector<EventExtTrigger> expected_events_trigger;
     {
         HDF5EventFileWriter writer(tmp_file_);
@@ -1080,7 +1084,7 @@ TEST_F(HDF5EventFileWriter_Gtest, random_writes) {
         size_t id           = 0;
         timestamp cur_cd_ts = 0, cur_trigger_ts = 0;
         for (size_t j = 0; j < 10; ++j) {
-            std::vector<EventCD> events_cd(num_events);
+            EventsSoA events_cd(num_events);
             for (size_t i = 0; i < num_events; ++i) {
                 events_cd[i].x = dx(mt_rand);
                 events_cd[i].y = dy(mt_rand);
@@ -1111,7 +1115,7 @@ TEST_F(HDF5EventFileWriter_Gtest, random_writes) {
         }
     }
     {
-        std::vector<EventCD> events_cd;
+        EventsSoA events_cd;
         std::vector<EventExtTrigger> events_trigger;
         HDF5EventFileReader reader(tmp_file_);
         size_t id = reader.add_read_callback(

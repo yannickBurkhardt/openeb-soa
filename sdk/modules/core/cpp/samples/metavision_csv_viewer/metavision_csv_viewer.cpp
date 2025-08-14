@@ -20,6 +20,7 @@
 #include <thread>
 #include <boost/program_options.hpp>
 #include <metavision/sdk/base/events/event_cd.h>
+#include "metavision/sdk/base/events/events_soa.h"
 #include <metavision/sdk/base/utils/object_pool.h>
 #include <metavision/sdk/base/utils/log.h>
 #include <metavision/sdk/core/algorithms/periodic_frame_generation_algorithm.h>
@@ -34,7 +35,7 @@
 
 class CSVReader {
 public:
-    using EventBuffer = std::vector<Metavision::EventCD>;
+    using EventBuffer = Metavision::EventsSoA;
     using EventBufferPool = Metavision::SharedObjectPool<EventBuffer>;
     using EventBufferPtr = EventBufferPool::ptr_type;
     using OutputCallback = std::function<void(const Metavision::EventCD *, const Metavision::EventCD *)>;

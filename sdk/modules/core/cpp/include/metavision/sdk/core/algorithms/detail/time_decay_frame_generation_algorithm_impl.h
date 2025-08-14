@@ -17,10 +17,12 @@ namespace Metavision {
 template<typename EventIt>
 inline void TimeDecayFrameGenerationAlgorithm::process_events(EventIt it_begin, EventIt it_end) {
     for (auto it = it_begin; it != it_end; ++it) {
-        time_surface_.at(it->y, it->x, it->p) = it->t;
+        time_surface_.at((*it).y, (*it).x, (*it).p) = (*it).t;
     }
-    if (it_begin != it_end)
-        last_ts_ = std::prev(it_end)->t;
+    if (it_begin != it_end) {
+        auto ref = *std::prev(it_end);
+        last_ts_ = ref.t;
+    }
 }
 
 } // namespace Metavision

@@ -20,9 +20,10 @@
 #include "metavision/sdk/core/utils/concurrent_queue.h"
 #include "metavision/sdk/stream/camera.h"
 #include "metavision/sdk/stream/slice_iterator.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 namespace Metavision {
-using EventBuffer   = std::vector<EventCD>;
+using EventBuffer   = EventsSoA;
 using TriggerBuffer = std::vector<EventExtTrigger>;
 
 /// @brief A slice of synchronized events from a master and slave cameras.

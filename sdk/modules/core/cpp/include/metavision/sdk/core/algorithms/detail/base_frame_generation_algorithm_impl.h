@@ -52,9 +52,11 @@ void BaseFrameGenerationAlgorithm::generate_frame_from_events(EventIt it_begin, 
 
     // Process the entire range of events if the accumulation time is set to zero, or if there's no events.
     // Otherwise, find the first event to process in the desired time interval [t-dt, t[
-    if (std::distance(it_begin, it_end) != 0 && accumulation_time_us != 0)
-        it_begin = std::lower_bound(it_begin, it_end, std::prev(it_end)->t - accumulation_time_us,
+    if (std::distance(it_begin, it_end) != 0 && accumulation_time_us != 0) {
+        auto tmp = *std::prev(it_end);
+        it_begin = std::lower_bound(it_begin, it_end, tmp.t - accumulation_time_us,
                                     [](const auto &lhs, auto rhs) { return lhs.t < rhs; });
+        }
 
     generate_frame_from_events(it_begin, it_end, frame, bg_color, off_on_colors, flags);
 }
@@ -102,16 +104,16 @@ void BaseFrameGenerationAlgorithm::generate_frame_from_events(EventIt it_begin, 
     if (flags & Parameters::GRAY) {
         frame.setTo(bg_color[0]);
         for (auto it = it_begin; it != it_end; ++it)
-            frame.at<uint8_t>(it->y, it->x) = off_on_colors[it->p][0];
+            frame.at<uint8_t>((*it).y, (*it).x) = off_on_colors[(*it).p][0];
 
     } else if (flags & Parameters::RGB || flags & Parameters::BGR) {
         frame.setTo(_bg_color3);
         for (auto it = it_begin; it != it_end; ++it)
-            frame.at<cv::Vec3b>(it->y, it->x) = _off_on_colors3[it->p];
+            frame.at<cv::Vec3b>((*it).y, (*it).x) = _off_on_colors3[(*it).p];
     } else {
         frame.setTo(_bg_color4);
         for (auto it = it_begin; it != it_end; ++it)
-            frame.at<cv::Vec4b>(it->y, it->x) = _off_on_colors4[it->p];
+            frame.at<cv::Vec4b>((*it).y, (*it).x) = _off_on_colors4[(*it).p];
     }
 }
 

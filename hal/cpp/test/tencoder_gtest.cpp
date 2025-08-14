@@ -40,13 +40,12 @@ public:
 
     virtual ~TEncoder_Gtest() {}
 
-    template<typename EventType>
-    void encode_and_decode(const std::vector<EventType> &events_to_encode, std::vector<EventType> &decoded_events) {
+    void encode_and_decode(const EventsSoA &events_to_encode, EventsSoA &decoded_events) {
         encode_all_events_and_decode_them_back<EvtFormat, TimerHighRedundancyPolicy>(events_to_encode, decoded_events);
     }
 
-    template<typename EventType, typename EventType2>
-    void encode_and_decode(const std::vector<EventType> &events_to_encode, std::vector<EventType> &decoded_events,
+    template<typename EventType2>
+    void encode_and_decode(const EventsSoA &events_to_encode, EventsSoA &decoded_events,
                            const std::vector<EventType2> &events_to_encode2, std::vector<EventType2> &decoded_events2) {
         // Encode the events
         encoder_.encode(events_to_encode.cbegin(), events_to_encode.cend(), events_to_encode2.cbegin(),
@@ -58,7 +57,7 @@ public:
     }
 
     template<typename EventType, typename EventType2, typename EventType3>
-    void encode_and_decode(const std::vector<EventType> &events_to_encode, std::vector<EventType> &decoded_events,
+    void encode_and_decode(const EventsSoA &events_to_encode, EventsSoA &decoded_events,
                            const std::vector<EventType2> &events_to_encode2, std::vector<EventType2> &decoded_events2,
                            const std::vector<EventType3> &events_to_encode3, std::vector<EventType3> &decoded_events3) {
         // Encode the events
@@ -71,7 +70,7 @@ public:
     }
 
     template<typename EventType, typename EventType2, typename EventType3, typename EventType4>
-    void encode_and_decode(const std::vector<EventType> &events_to_encode, std::vector<EventType> &decoded_events,
+    void encode_and_decode(const EventsSoA &events_to_encode, EventsSoA &decoded_events,
                            const std::vector<EventType2> &events_to_encode2, std::vector<EventType2> &decoded_events2,
                            const std::vector<EventType3> &events_to_encode3, std::vector<EventType3> &decoded_events3,
                            const std::vector<EventType4> &events_to_encode4, std::vector<EventType4> &decoded_events4) {
@@ -108,7 +107,9 @@ TYPED_TEST(TEncoder_Gtest, test_timer_high_redundancy_timer_high_value) {
     static constexpr timestamp TH  = (1 << event_raw_format_traits<EvtFormat>::NLowerBitsTH) - 1;
     static constexpr timestamp TH2 = 2 * (1 << event_raw_format_traits<EvtFormat>::NLowerBitsTH);
 
-    std::vector<CameraEvent2dTD> tds = {CameraEvent2dTD(288, 64, 1, TH), CameraEvent2dTD(288, 64, 1, TH2)};
+    EventsSoA tds;
+    tds.emplace_back(CameraEvent2dTD(288, 64, 1, TH));
+    tds.emplace_back(CameraEvent2dTD(288, 64, 1, TH2));
 
     // Encode
     this->encoder_.encode(tds.begin(), tds.end());
@@ -141,7 +142,7 @@ TYPED_TEST(TEncoder_Gtest, test_time_overflow) {
 
     static constexpr timestamp MAX_TH = timestamp((1 << 28) - 1) << event_raw_format_traits<EvtFormat>::NLowerBitsTH;
 
-    std::vector<CameraEvent2dTD> tds = {
+    std::vector<CameraEvent2dTD> tds_aos = {
         CameraEvent2dTD(288, 64, 1, MAX_TH - 5000),  CameraEvent2dTD(228, 166, 0, MAX_TH - 4000),
         CameraEvent2dTD(162, 166, 1, MAX_TH - 3000), CameraEvent2dTD(186, 166, 1, MAX_TH - 2000),
         CameraEvent2dTD(288, 64, 1, MAX_TH - 1000),  CameraEvent2dTD(228, 166, 0, MAX_TH - 900),
@@ -159,9 +160,13 @@ TYPED_TEST(TEncoder_Gtest, test_time_overflow) {
         CameraEvent2dTD(26, 188, 1, MAX_TH + 1000),  CameraEvent2dTD(25, 169, 1, MAX_TH + 2000),
         CameraEvent2dTD(113, 220, 1, MAX_TH + 3000), CameraEvent2dTD(147, 193, 1, MAX_TH + 4000),
         CameraEvent2dTD(224, 138, 0, MAX_TH + 5000)};
+    EventsSoA tds;
+    for (const auto& e : tds_aos) {
+        tds.emplace_back(e);        
+    }
 
     // Encode and decode back
-    std::vector<CameraEvent2dTD> tds_decoded;
+    EventsSoA tds_decoded;
     this->encode_and_decode(tds, tds_decoded);
 
     // Now check the contents of vectors of decoded events
@@ -174,11 +179,11 @@ TYPED_TEST(TEncoder_Gtest, td_and_ext_trigger) {
     using EvtFormat       = typename TypeParam::EvtFormat;
     using CameraEvent2dTD = typename event2d_types_def<EvtFormat>::event2d_TD_class;
 
-    std::vector<CameraEvent2dTD> tds    = build_vector_of_events<EvtFormat, CameraEvent2dTD>();
+    EventsSoA tds                       = build_vector_of_events<EvtFormat, CameraEvent2dTD>();
     std::vector<EventExtTrigger> triggs = build_vector_of_events<EvtFormat, EventExtTrigger>();
 
     // Encode and decode back
-    std::vector<CameraEvent2dTD> tds_decoded;
+    EventsSoA tds_decoded;
     std::vector<EventExtTrigger> triggs_decoded;
     this->encode_and_decode(tds, tds_decoded, triggs, triggs_decoded);
 
@@ -195,10 +200,10 @@ TYPED_TEST(TEncoder_Gtest, td_empty_encoding) {
     using EvtFormat       = typename TypeParam::EvtFormat;
     using CameraEvent2dTD = typename event2d_types_def<EvtFormat>::event2d_TD_class;
 
-    std::vector<CameraEvent2dTD> tds;
+    EventsSoA tds;
 
     // Encode and decode back
-    std::vector<CameraEvent2dTD> tds_decoded;
+    EventsSoA tds_decoded;
     this->encode_and_decode(tds, tds_decoded);
 
     // Now check the contents of vectors of decoded events

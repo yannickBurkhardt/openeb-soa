@@ -30,7 +30,7 @@ using EventExtDecoder = I_EventDecoder<EventExtTrigger>;
 using EventErcDecoder = I_EventDecoder<EventERCCounter>;
 using EventMonitoringDecoder = I_EventDecoder<EventMonitoring>;
 
-using EventCdBuffer  = std::vector<EventCD>;
+using EventCdBuffer  = EventsSoA;
 using EventExtBuffer = std::vector<EventExtTrigger>;
 using EventErcBuffer = std::vector<EventERCCounter>;
 using EventMonitoringBuffer = std::vector<EventMonitoring>;
@@ -91,7 +91,7 @@ using DecodedBuffers = std::tuple<EventCdBuffer, EventExtBuffer, EventErcBuffer,
 DecodedBuffers decode_buffer(const DataBuffer &data, I_Decoder &decoder, EventCdDecoder &event_cd_decoder,
                              EventExtDecoder &event_ext_decoder, EventErcDecoder &event_erc_decoder,
                              EventMonitoringDecoder &event_monitoring_decoder) {
-    std::vector<EventCD> event_cd_buffer;
+    EventsSoA event_cd_buffer;
     auto cd_cb_id = event_cd_decoder.add_event_buffer_callback(
         [&](auto beg, auto end) { std::copy(beg, end, std::back_inserter(event_cd_buffer)); });
 
@@ -164,11 +164,10 @@ TEST_F(Evt3DecoderTest, should_decode_basic_evt3_stream) {
         addr_x(3, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-        {3, 1, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0);
+    expected_events.emplace_back(3, 1, 1, 0);
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -183,10 +182,9 @@ TEST_F(Evt3DecoderTest, should_drop_events_before_1st_timehigh) {
         addr_x(5),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {5, 4, 0, 3 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(5, 4, 0, 3 << 12);
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -207,13 +205,12 @@ TEST_F(Evt3DecoderTest, should_decode_non_monotonic_timehigh_by_default) {
         addr_x(5),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-        {3, 1, 0, 1 << 12},
-        {4, 1, 0, 0},
-        {5, 1, 0, 1 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0);
+    expected_events.emplace_back(3, 1, 0, 1 << 12);
+    expected_events.emplace_back(4, 1, 0, 0);
+    expected_events.emplace_back(5, 1, 0, 1 << 12);
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -229,12 +226,11 @@ TEST_F(Evt3DecoderTest, should_decode_timehigh_count_jump) {
         time_high(3),
         addr_x(4),
     });
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0 << 12},
-        {3, 1, 0, 2 << 12},
-        {4, 1, 0, 3 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0 << 12);
+    expected_events.emplace_back(3, 1, 0, 2 << 12);
+    expected_events.emplace_back(4, 1, 0, 3 << 12);
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -257,12 +253,12 @@ TEST_F(Evt3DecoderTest, should_not_raise_error_with_timehigh_gap_on_overflow) {
                             });
     auto events = decode<EventCdBuffer>(std::move(data));
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0xFFD << 12},
-        {3, 1, 0, 0x1001 << 12},
-        {4, 1, 0, 0x1002 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0xFFD << 12);
+    expected_events.emplace_back(3, 1, 0, 0x1001 << 12);
+    expected_events.emplace_back(4, 1, 0, 0x1002 << 12);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -316,10 +312,10 @@ TEST_F(Evt3DecoderTest, should_not_decode_vect8_unique_word) {
         addr_x(2),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -395,7 +391,7 @@ TEST_F(Evt3RobustDecoderTest, should_not_validate_time_high_when_uninitialised) 
         addr_x(2, false),
     });
 
-    const std::vector<EventCD> expected_events;
+    EventsSoA expected_events;
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -409,11 +405,11 @@ TEST_F(Evt3RobustDecoderTest, should_decode_basic_evt3_stream) {
         addr_x(3, true),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-        {3, 1, 1, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0);
+    expected_events.emplace_back(3, 1, 1, 0);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -434,13 +430,13 @@ TEST_F(Evt3RobustDecoderTest, should_not_decode_non_monotonic_timehigh_by_defaul
         addr_x(5),
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0 << 12},
-        {3, 1, 0, 1 << 12},
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0 << 12);
+    expected_events.emplace_back(3, 1, 0, 1 << 12);
         // {4, 1, 0, 0 << 12 }, <-- dropped event as timestamp goes back in time
-        {5, 1, 0, 1 << 12},
-    };
+    expected_events.emplace_back(5, 1, 0, 1 << 12);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -458,12 +454,12 @@ TEST_F(Evt3RobustDecoderTest, should_detect_timehigh_count_jump) {
         time_high(3),
         addr_x(4),
     });
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0 << 12},
-        {3, 1, 0, 2 << 12},
-        {4, 1, 0, 3 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0 << 12);
+    expected_events.emplace_back(3, 1, 0, 2 << 12);
+    expected_events.emplace_back(4, 1, 0, 3 << 12);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -485,12 +481,12 @@ TEST_F(Evt3RobustDecoderTest, should_handle_timehigh_overflow) {
                             });
     auto events = decode<EventCdBuffer>(std::move(data));
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0xFFF << 12},
-        {3, 1, 0, 0x1000 << 12},
-        {4, 1, 0, 0x1001 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0xFFF << 12);
+    expected_events.emplace_back(3, 1, 0, 0x1000 << 12);
+    expected_events.emplace_back(4, 1, 0, 0x1001 << 12);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -514,12 +510,11 @@ TEST_F(Evt3RobustDecoderTest, should_raise_non_countinous_with_timehigh_gap_on_o
                             });
     auto events = decode<EventCdBuffer>(std::move(data));
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0xFFD << 12},
-        {3, 1, 0, 0x1001 << 12},
-        {4, 1, 0, 0x1002 << 12},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0xFFD << 12);
+    expected_events.emplace_back(3, 1, 0, 0x1001 << 12);
+    expected_events.emplace_back(4, 1, 0, 0x1002 << 12);
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;
@@ -559,10 +554,10 @@ TEST_F(Evt3RobustDecoderTest, should_skip_single_vect8) {
         addr_x(2),   // This event is valid
     });
 
-    const std::vector<EventCD> expected_events = {
-        // x. y, p, t
-        {2, 1, 0, 0},
-    };
+    EventsSoA expected_events;
+                              // x, y, p, t
+    expected_events.emplace_back(2, 1, 0, 0);
+
     EXPECT_THAT(events, ContainerEq(expected_events)) << "-- Actual events: \n"
                                                       << events << "-- Expected events: \n"
                                                       << expected_events;

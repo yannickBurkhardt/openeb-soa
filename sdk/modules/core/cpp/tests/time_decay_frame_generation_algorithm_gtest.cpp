@@ -15,6 +15,7 @@
 
 #include "metavision/sdk/core/algorithms/time_decay_frame_generation_algorithm.h"
 #include "metavision/sdk/base/events/event_cd.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 using namespace Metavision;
 
@@ -27,9 +28,16 @@ TEST(TimeDecayFrameGenerationAlgorithm_GTest, nominal_grayscale) {
     TimeDecayFrameGenerationAlgorithm frame_generation(sensor_width, sensor_height, exponential_decay_time_us, palette);
 
     // GIVEN the following events in the time slice [0, 10000]
-    std::vector<EventCD> events{{EventCD{0, 0, 0, 100}, EventCD{1, 0, 0, 101}, EventCD{1, 1, 1, 101},
-                                 EventCD{1, 2, 1, 1000}, EventCD{2, 0, 0, 7000}, EventCD{2, 1, 1, 9000},
-                                 EventCD{2, 2, 1, 9500}, EventCD{0, 0, 0, 10000}, EventCD{0, 1, 1, 10000}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, 100});
+    events.emplace_back(EventCD{1, 0, 0, 101});
+    events.emplace_back(EventCD{1, 1, 1, 101});
+    events.emplace_back(EventCD{1, 2, 1, 1000});
+    events.emplace_back(EventCD{2, 0, 0, 7000});
+    events.emplace_back(EventCD{2, 1, 1, 9000});
+    events.emplace_back(EventCD{2, 2, 1, 9500});
+    events.emplace_back(EventCD{0, 0, 0, 10000});
+    events.emplace_back(EventCD{0, 1, 1, 10000});
 
     // WHEN we process the events and generate a frame
     frame_generation.process_events(events.cbegin(), events.cend());
@@ -63,7 +71,10 @@ TEST(TimeDecayFrameGenerationAlgorithm_GTest, nominal_colored) {
     TimeDecayFrameGenerationAlgorithm frame_generation(sensor_width, sensor_height, exponential_decay_time_us, palette);
 
     // GIVEN the following events in the time slice [0, 10000]
-    std::vector<EventCD> events{{EventCD{0, 0, 0, 10000}, EventCD{1, 0, 0, 4000}, EventCD{2, 0, 1, 10000}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, 10000});
+    events.emplace_back(EventCD{1, 0, 0, 4000});
+    events.emplace_back(EventCD{2, 0, 1, 10000});
 
     // WHEN we process the events and generate a frame
     frame_generation.process_events(events.cbegin(), events.cend());
@@ -108,7 +119,8 @@ TEST(TimeDecayFrameGenerationAlgorithm_GTest, preallocated_grayscale) {
     TimeDecayFrameGenerationAlgorithm frame_generation(sensor_width, sensor_height, exponential_decay_time_us, palette);
 
     // GIVEN some events being processed
-    std::vector<EventCD> events{{EventCD{0, 0, 0, 100}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, 100});
     frame_generation.process_events(events.cbegin(), events.cend());
 
     // WHEN we generate the frame using a pre-allocated frame larger than needed, THEN it does not throw and the frame
@@ -131,7 +143,8 @@ TEST(TimeDecayFrameGenerationAlgorithm_GTest, preallocated_colored) {
     TimeDecayFrameGenerationAlgorithm frame_generation(sensor_width, sensor_height, exponential_decay_time_us, palette);
 
     // GIVEN some events being processed
-    std::vector<EventCD> events{{EventCD{0, 0, 0, 100}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, 100});
     frame_generation.process_events(events.cbegin(), events.cend());
 
     // WHEN we generate the frame using a pre-allocated frame larger than needed, THEN it does not throw and the frame
@@ -156,7 +169,8 @@ TEST(TimeDecayFrameGenerationAlgorithm_GTest, wrong_frame_format) {
                                                                  Metavision::ColorPalette::Gray);
 
     // GIVEN some events being processed
-    std::vector<EventCD> events{{EventCD{0, 0, 0, 100}}};
+    EventsSoA events;
+    events.emplace_back(EventCD{0, 0, 0, 100});
     frame_generation_colored.process_events(events.cbegin(), events.cend());
     frame_generation_grayscale.process_events(events.cbegin(), events.cend());
 

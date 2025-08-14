@@ -12,6 +12,7 @@
 // Demonstrates using Metavision SyncedCameraStreamsSlicer to slice events from a master and slave cameras system into
 // fixed slices (i.e. number of events or duration)
 
+#include <chrono>
 #include <fstream>
 #include <filesystem>
 
@@ -201,6 +202,7 @@ int main(int argc, char *argv[]) {
     }
 
     /// [SLICER_LOOP_BEGIN]
+    auto start = std::chrono::high_resolution_clock::now();
     for (const auto &slice : slicer) {
         for (auto &frame : slice_frames) {
             frame.setTo(0);
@@ -230,6 +232,8 @@ int main(int argc, char *argv[]) {
         if (key == 'q')
             break;
     }
+    auto duration = std::chrono::high_resolution_clock::now() - start;
+    MV_LOG_INFO() << "Total duration was " << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() << "ms.\n";
     /// [SLICER_LOOP_END]
 
     return 0;

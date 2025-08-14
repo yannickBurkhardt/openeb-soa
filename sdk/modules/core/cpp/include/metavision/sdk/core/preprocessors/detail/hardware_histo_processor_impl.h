@@ -37,8 +37,8 @@ template<typename InputIt>
 void HardwareHistoProcessor<InputIt>::compute(const timestamp, InputIt it_begin, InputIt it_end, Tensor &tensor) const {
     auto histo = tensor.data<uint8_t>();
     for (auto it = it_begin; it != it_end; ++it) {
-        const unsigned int idx = it->p + (it->x + it->y * width_) * 2;
-        const uint8_t sum_max  = (it->p == 0 ? sum_max_neg_ : sum_max_pos_);
+        const unsigned int idx = (*it).p + ((*it).x + (*it).y * width_) * 2;
+        const uint8_t sum_max  = ((*it).p == 0 ? sum_max_neg_ : sum_max_pos_);
         uint8_t &sum_events    = histo[idx];
         if (sum_events <= sum_max - 1)
             ++sum_events;

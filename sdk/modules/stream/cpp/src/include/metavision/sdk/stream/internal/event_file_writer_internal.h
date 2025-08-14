@@ -14,6 +14,7 @@
 
 #include <filesystem>
 #include <mutex>
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/base/utils/object_pool.h"
 #include "metavision/sdk/core/utils/threaded_process.h"
 #include "metavision/sdk/stream/event_file_writer.h"
@@ -48,7 +49,7 @@ public:
 
     size_t max_event_cd_buffer_size_      = 64384;
     size_t max_event_trigger_buffer_size_ = 1028;
-    using EventCDBufferPool               = SharedObjectPool<std::vector<EventCD>>;
+    using EventCDBufferPool               = SharedObjectPool<EventsSoA>;
     using EventCDBufferPtr                = EventCDBufferPool::ptr_type;
     using EventExtTriggerBufferPool       = SharedObjectPool<std::vector<EventExtTrigger>>;
     using EventExtTriggerBufferPtr        = EventExtTriggerBufferPool::ptr_type;

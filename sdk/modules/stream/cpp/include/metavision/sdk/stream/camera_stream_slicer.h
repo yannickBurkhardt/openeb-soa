@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <optional>
 
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/base/utils/object_pool.h"
 #include "metavision/sdk/core/algorithms/event_buffer_reslicer_algorithm.h"
 #include "metavision/sdk/core/utils/concurrent_queue.h"
@@ -22,7 +23,7 @@
 #include "metavision/sdk/stream/slice_iterator.h"
 
 namespace Metavision {
-using EventBuffer   = std::vector<EventCD>;
+using EventBuffer   = EventsSoA;
 using TriggerBuffer = std::vector<EventExtTrigger>;
 
 /// @brief Structure representing a slice of events and triggers
@@ -88,7 +89,7 @@ private:
     void init_slicing();
 
     std::shared_ptr<ConcurrentQueue<Slice>> queue_;
-    SharedObjectPool<std::vector<EventCD>> event_buffer_pool_;
+    SharedObjectPool<EventsSoA> event_buffer_pool_;
     SharedObjectPool<std::vector<EventExtTrigger>> trigger_buffer_pool_;
     std::shared_ptr<EventBuffer> curt_event_buffer_;
     std::shared_ptr<TriggerBuffer> curt_trigger_buffer_;

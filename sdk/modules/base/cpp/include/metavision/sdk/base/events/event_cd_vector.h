@@ -16,6 +16,7 @@
 #include <iostream>
 
 #include "metavision/sdk/base/utils/timestamp.h"
+#include "metavision/sdk/base/events/events_soa.h"
 
 namespace Metavision {
 
@@ -24,52 +25,65 @@ namespace Metavision {
 /// Each set bit represents a triggered event at pos(base_x + vector_mask[i], y)
 class EventCDVector {
 public:
+    using timestamp = long long;
 
-    /// @brief Default constructor
     EventCDVector() = default;
 
-    /// @brief Constructor from Event2d
-    inline EventCDVector(
-        uint16_t base_x, uint16_t y,
-        bool polarity,
-        uint32_t vector_mask,
-        timestamp event_timestamp
-    ) :
-        base_x(base_x), y(y),
-        polarity(polarity),
-        vector_mask(vector_mask),
-        event_timestamp(event_timestamp)
-    {}
-
-    inline bool operator==(const EventCDVector &rhs) const {
-        return (
-            (polarity == rhs.polarity) && 
-            (base_x == rhs.base_x) && (y == rhs.y) &&
-            (vector_mask == rhs.vector_mask) && 
-            (event_timestamp == rhs.event_timestamp)
-        );
+    /// @brief Construct and immediately push a single event
+    EventCDVector(uint16_t x, uint16_t y, bool polarity,
+                    uint32_t vector_mask, timestamp t) {
+        events_.push_back({x, y, static_cast<short>(polarity), t});
     }
 
-    /// @brief function operator<< that returns std::ostream &
-    friend std::ostream &operator<<(std::ostream &output, const EventCDVector &rhs) {
-        output << "EventCDVector: (";
-
-        output 
-                << rhs.base_x << ", "
-                << rhs.y << ", "
-                << (int)rhs.polarity << ", " 
-                << rhs.vector_mask << ", " 
-                << rhs.event_timestamp;
-
-        output << ")";
-        return output;
+    /// @brief Add a new event directly into the underlying EventsSoA
+    void push_back(uint16_t x, uint16_t y, bool polarity, timestamp t) {
+        events_.push_back({x, y, static_cast<short>(polarity), t});
     }
-   
-    uint16_t base_x, y;
-    bool polarity;
-    uint32_t vector_mask;
-    timestamp event_timestamp;
 
+    /// @brief Add an EventCD directly
+    void push_back(const EventCD &ev) {
+        events_.push_back(ev);
+    }
+
+    /// @brief Access event at index
+    EventsSoA::Reference operator[](std::size_t idx) {
+        return events_[idx];
+    }
+
+    const EventCD operator[](std::size_t idx) const {
+        return events_[idx];
+    }
+
+    /// @brief Get the number of events
+    std::size_t size() const noexcept { return events_.size(); }
+    bool empty() const noexcept { return events_.empty(); }
+
+    /// @brief Clear all events
+    void clear() noexcept { events_.clear(); }
+
+    /// @brief Access underlying EventsSoA
+    EventsSoA &soa() { return events_; }
+    const EventsSoA &soa() const { return events_; }
+
+    /// @brief Stream operator for debugging
+    friend std::ostream &operator<<(std::ostream &os, const EventCDVector &vec) {
+        os << "EventCDVector with " << vec.size() << " events:\n";
+        for (std::size_t i = 0; i < vec.size(); ++i) {
+            const auto &e = vec[i];
+            os << "(" << e.x << ", " << e.y << ", " << e.p << ", " << e.t << ")\n";
+        }
+        return os;
+    }
+
+    bool operator==(const EventCDVector &other) const {
+        return events_ == other.events_;
+    }
+    
+    bool operator!=(const EventCDVector &other) const {
+        return events_ != other.events_;
+    }
+
+    EventsSoA events_;
 };
 
 } // namespace Metavision

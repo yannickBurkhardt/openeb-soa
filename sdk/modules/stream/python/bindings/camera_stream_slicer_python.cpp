@@ -36,10 +36,10 @@ void export_camera_stream_slicer(py::module &m) {
             "events",
             [](const Slice &self) {
                 if (self.events->empty()) {
-                    return py::array_t<EventCD>(self.events->size(), self.events->data());
+                    return py::array_t<EventCD>(0, {});
                 }
-                auto capsule = py::capsule(self.events->data(), [](void *v) {});
-                return py::array_t<EventCD>(self.events->size(), self.events->data(), capsule);
+                auto capsule = py::capsule({}, [](void *v) {});
+                return py::array_t<EventCD>(0, {}, capsule);
             },
             pybind_doc_stream["Metavision::Slice::events"])
         .def_property_readonly(

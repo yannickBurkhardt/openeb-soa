@@ -156,10 +156,11 @@ void PeriodicFrameGenerationAlgorithm::process_event_buffer(EventIt it_begin, Ev
     if (std::distance(it_begin, it_end) == 0)
         return;
 
-    if (std::prev(it_end)->t < min_event_ts_us_to_use_)
+    auto ref = *std::prev(it_end);
+    if (ref.t < min_event_ts_us_to_use_)
         return; // No event to process
 
-    if (it_begin->t < min_event_ts_us_to_use_) {
+    if ((*it_begin).t < min_event_ts_us_to_use_) {
         // Time slice begins is in the middle of the input events
         it_begin = std::lower_bound(it_begin, it_end, min_event_ts_us_to_use_,
 
@@ -169,7 +170,8 @@ void PeriodicFrameGenerationAlgorithm::process_event_buffer(EventIt it_begin, Ev
     // Add events in the time surface
 
     // Checks time overflow. If one occurs, updates the time offset to apply and the timesurface accordingly.
-    while (std::prev(it_end)->t > ts_offset_ + std::numeric_limits<int32_t>::max()) {
+    auto ref2 = *std::prev(it_end);
+    while (ref2.t > ts_offset_ + std::numeric_limits<int32_t>::max()) {
         ts_offset_ += std::numeric_limits<int32_t>::max();
         for (auto &pix_data : time_surface_) {
             pix_data.first =
@@ -181,8 +183,8 @@ void PeriodicFrameGenerationAlgorithm::process_event_buffer(EventIt it_begin, Ev
 
     // Refresh the time-surface using the event buffer
     for (auto it = it_begin; it != it_end; ++it) {
-        const int32_t it_t                    = static_cast<int32_t>(it->t - ts_offset_);
-        time_surface_[it->y * width_ + it->x] = {it_t, it->p};
+        const int32_t it_t                    = static_cast<int32_t>((*it).t - ts_offset_);
+        time_surface_[(*it).y * width_ + (*it).x] = {it_t, (*it).p};
     }
 }
 
