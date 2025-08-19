@@ -282,7 +282,7 @@ void TzCx3GenX320::spawn_facilities(DeviceBuilder &device_builder, const DeviceC
 
 TzCx3GenX320::~TzCx3GenX320() {}
 
-long long TzCx3GenX320::get_sensor_id() {
+int64_t TzCx3GenX320::get_sensor_id() {
     return (*register_map)["chip_id"].read_value();
 }
 

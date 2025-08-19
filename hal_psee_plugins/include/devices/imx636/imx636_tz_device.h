@@ -46,7 +46,7 @@ public:
     virtual I_HW_Identification::SensorInfo get_sensor_info() {
         return {4, 2, "IMX636"};
     }
-    long long get_sensor_id();
+    int64_t get_sensor_id();
     virtual int get_temperature();
     virtual int get_illumination();
     virtual int get_pixel_dead_time();

@@ -41,7 +41,7 @@ public:
     virtual I_HW_Identification::SensorInfo get_sensor_info() {
         return {4, 1, "Gen4.1"};
     }
-    long long get_sensor_id();
+    int64_t get_sensor_id();
     virtual int get_illumination();
     virtual int get_temperature();
 

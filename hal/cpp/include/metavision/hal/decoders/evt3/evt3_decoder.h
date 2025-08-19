@@ -172,8 +172,8 @@ private:
                 if (is_valid) {
                     const Evt3Raw::Event_PosX *ev_posx = reinterpret_cast<const Evt3Raw::Event_PosX *>(cur_raw_ev);
                     if (validator.validate_event_cd(cur_raw_ev)) {
-                        cd_forwarder.forward(static_cast<unsigned short>(ev_posx->x),
-                                             state[(int)EventTypesEnum::EVT_ADDR_Y], static_cast<short>(ev_posx->pol),
+                        cd_forwarder.forward(static_cast<uint16_t>(ev_posx->x),
+                                             state[(int)EventTypesEnum::EVT_ADDR_Y], static_cast<int16_t>(ev_posx->pol),
                                              last_timestamp<DO_TIMESHIFT>());
                     }
                 }
@@ -242,8 +242,8 @@ private:
                 if (validator.validate_ext_trigger(cur_raw_ev)) {
                     const Evt3Raw::Event_ExtTrigger *ev_exttrigger =
                         reinterpret_cast<const Evt3Raw::Event_ExtTrigger *>(cur_raw_ev);
-                    trigger_forwarder.forward(static_cast<short>(ev_exttrigger->pol), last_timestamp<DO_TIMESHIFT>(),
-                                              static_cast<short>(ev_exttrigger->id));
+                    trigger_forwarder.forward(static_cast<int16_t>(ev_exttrigger->pol), last_timestamp<DO_TIMESHIFT>(),
+                                              static_cast<int16_t>(ev_exttrigger->id));
                 }
                 ++cur_raw_ev;
             } else if (type == static_cast<EventTypesUnderlying_t>(EventTypesEnum::OTHERS)) {

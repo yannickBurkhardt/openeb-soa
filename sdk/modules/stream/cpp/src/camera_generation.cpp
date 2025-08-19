@@ -20,7 +20,7 @@ namespace Metavision {
 
 CameraGeneration::Private::Private(const std::string &name) : name_(name) {}
 
-CameraGeneration::Private::Private(short version_major, short version_minor, const std::string &name) :
+CameraGeneration::Private::Private(int16_t version_major, int16_t version_minor, const std::string &name) :
     major_(version_major), minor_(version_minor), name_(name) {}
 
 CameraGeneration::Private::~Private() {}
@@ -29,7 +29,7 @@ CameraGeneration *CameraGeneration::Private::build(const std::string &name) {
     return new CameraGeneration(new Private(name));
 }
 
-CameraGeneration *CameraGeneration::Private::build(short version_major, short version_minor, const std::string &name) {
+CameraGeneration *CameraGeneration::Private::build(int16_t version_major, int16_t version_minor, const std::string &name) {
     return new CameraGeneration(new Private(version_major, version_minor, name));
 }
 
@@ -43,11 +43,11 @@ CameraGeneration::~CameraGeneration() {}
 
 CameraGeneration::CameraGeneration(Private *pimpl) : pimpl_(pimpl) {}
 
-short CameraGeneration::version_major() const {
+int16_t CameraGeneration::version_major() const {
     return pimpl_->major_;
 }
 
-short CameraGeneration::version_minor() const {
+int16_t CameraGeneration::version_minor() const {
     return pimpl_->minor_;
 }
 

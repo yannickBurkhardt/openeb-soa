@@ -42,8 +42,8 @@ struct ParamsSet {
 };
 
 struct XyEvent {
-    unsigned short x;
-    unsigned short y;
+    uint16_t x;
+    uint16_t y;
 };
 
 typedef ::testing::Types<ParamsSet<XyEvent, ProcesserWithBackInserter>, ParamsSet<XyEvent, ProcesserWithIterator>>

@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
     std::atomic<bool> stop_streaming = false;
     std::thread polling_loop([&]() {
         while (!stop_streaming) {
-            short ret = i_eventsstream->poll_buffer();
+            int16_t ret = i_eventsstream->poll_buffer();
             if (ret < 0) {
                 stop_streaming = true;
             } else if (ret == 0) {

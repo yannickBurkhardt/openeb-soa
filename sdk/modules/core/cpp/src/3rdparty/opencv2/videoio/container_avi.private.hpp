@@ -117,8 +117,8 @@ protected:
 
     Ptr<VideoInputStream> m_file_stream;
     unsigned int   m_stream_id;
-    unsigned long long int   m_movi_start;
-    unsigned long long int    m_movi_end;
+    uint64_t   m_movi_start;
+    uint64_t    m_movi_end;
     frame_list m_frame_list;
     unsigned int   m_width;
     unsigned int   m_height;

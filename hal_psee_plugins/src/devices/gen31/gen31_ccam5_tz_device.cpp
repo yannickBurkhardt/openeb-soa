@@ -99,7 +99,7 @@ long TzCcam5Gen31::get_system_id() const {
     return TzPseeFpgaDevice::get_system_id();
 }
 
-long long TzCcam5Gen31::get_sensor_id() {
+int64_t TzCcam5Gen31::get_sensor_id() {
     return (*register_map)["SENSOR_IF/GEN31/chip_id"].read_value();
 }
 

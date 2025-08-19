@@ -50,7 +50,7 @@ public:
     /// Channel enum and the numeric value that can be found in the corresponding event id field
     /// @sa @ref Metavision::EventExtTrigger
     /// @return a map of available channels
-    virtual std::map<Channel, short> get_available_channels() const = 0;
+    virtual std::map<Channel, int16_t> get_available_channels() const = 0;
 };
 
 } // namespace Metavision

@@ -65,8 +65,8 @@ int main(int argc, char *argv[]) {
     } else {
         cam = Metavision::Camera::from_first_available();
     }
-    const unsigned short width  = cam.geometry().get_width();
-    const unsigned short height = cam.geometry().get_height();
+    const uint16_t width  = cam.geometry().get_width();
+    const uint16_t height = cam.geometry().get_height();
 
     const Metavision::timestamp event_buffer_duration_ms = 2;
     const uint32_t accumulation_time_ms                  = 10;

@@ -32,11 +32,11 @@ TEST(BitInstructions_Gtest, should_clz_with_64b_input) {
 }
 
 TEST(BitInstructions_Gtest, should_clz_with_signed_types) {
-    // EXPECT_EQ(clz<short int>(-1), 0); // Should fail at compile time
+    // EXPECT_EQ(clz<int16_t>(-1), 0); // Should fail at compile time
     EXPECT_EQ(clz<int>(-1), 0);
     EXPECT_EQ(clz<long int>(-1), 0);
     EXPECT_EQ(clz<long int>(0), Metavision::detail::bit_size<long int>);
-    EXPECT_EQ(clz<long long int>(-1), 0);
+    EXPECT_EQ(clz<int64_t>(-1), 0);
 }
 
 TEST(BitInstructions_Gtest, should_ctz_with_32b_input) {
@@ -56,9 +56,9 @@ TEST(BitInstructions_Gtest, should_ctz_with_64b_input) {
 }
 
 TEST(BitInstructions_Gtest, should_ctz_with_signed_types) {
-    // EXPECT_EQ(ctz<short int>(-1), 0); // Should fail at compile time
+    // EXPECT_EQ(ctz<int16_t>(-1), 0); // Should fail at compile time
     EXPECT_EQ(ctz<int>(-1), 0);
     EXPECT_EQ(ctz<long int>(-1), 0);
     EXPECT_EQ(ctz<long int>(0), Metavision::detail::bit_size<long int>);
-    EXPECT_EQ(ctz<long long int>(-1), 0);
+    EXPECT_EQ(ctz<int64_t>(-1), 0);
 }

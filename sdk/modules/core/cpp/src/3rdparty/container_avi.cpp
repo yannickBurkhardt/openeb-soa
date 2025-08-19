@@ -81,10 +81,10 @@ struct AviStreamHeader
     uint32_t dwQuality;             // -1 (encoding quality. If set to -1, drivers use the default quality value)
     uint32_t dwSampleSize;          // 0 means that each frame is in its own chunk
     struct {
-        short int left;
-        short int top;
-        short int right;
-        short int bottom;
+        int16_t left;
+        int16_t top;
+        int16_t right;
+        int16_t bottom;
     } rcFrame;                // If stream has a different size than dwWidth*dwHeight(unused)
 };
 

@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
     bool stop_application            = false;
     std::thread decoding_loop([&]() {
         while (!stop_decoding) {
-            short ret = i_eventsstream->poll_buffer();
+            int16_t ret = i_eventsstream->poll_buffer();
 
             // Here we polled data, so we can launch decoding
             auto raw_data = i_eventsstream->get_latest_raw_data();

@@ -374,7 +374,7 @@ I_EventsStream::Index build_index(Device &device, const std::filesystem::path &r
         do_build_index = do_build_index || index_file_header.get_field(ts_shift_key).empty();
         {
             // ... and is indeed a valid integer
-            long long ts_shift;
+            int64_t ts_shift;
             std::istringstream iss(index_file_header.get_field(ts_shift_key));
             if (!(iss >> ts_shift)) {
                 do_build_index = true;
@@ -609,7 +609,7 @@ void I_EventsStream::stop_device() {
     }
 }
 
-short I_EventsStream::poll_buffer() {
+int16_t I_EventsStream::poll_buffer() {
     std::lock_guard<std::mutex> lock(new_buffer_safety_);
 
     if (stop_ && data_transfer_connection_error_) {
@@ -623,7 +623,7 @@ short I_EventsStream::poll_buffer() {
     return stop_ ? -1 : 0;
 }
 
-short I_EventsStream::wait_next_buffer() {
+int16_t I_EventsStream::wait_next_buffer() {
     std::unique_lock<std::mutex> lock(new_buffer_safety_);
     new_buffer_cond_.wait(lock, [this]() { return !available_buffers_.empty() || stop_; });
 

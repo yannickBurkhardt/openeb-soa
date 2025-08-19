@@ -40,7 +40,7 @@ constexpr uint64_t X_MASK_SHIFTED = (0x3FF); // = X_MASK >> TS_BITS
 constexpr uint64_t Y_MASK_SHIFTED = (0x1FF); // = Y_MASK >> (TS_BITS + Y_BITS)
 constexpr uint64_t P_MASK_SHIFTED = (0x1);   // P_MASK >> (TS_BITS + Y_BITS + X_MASK)
 
-inline void encode_sample_format(SampleEventsFormat &encoded_ev, unsigned short x, unsigned short y, short p,
+inline void encode_sample_format(SampleEventsFormat &encoded_ev, uint16_t x, uint16_t y, int16_t p,
                                  Metavision::timestamp t) {
     encoded_ev = (t & TS_MASK) | ((x & X_MASK_SHIFTED) << TS_BITS) | ((y & Y_MASK_SHIFTED) << (TS_BITS + X_BITS)) |
                  ((p & P_MASK_SHIFTED) << (TS_BITS + X_BITS + Y_BITS));
@@ -48,9 +48,9 @@ inline void encode_sample_format(SampleEventsFormat &encoded_ev, unsigned short 
 
 inline void decode_sample_format(SampleEventsFormat in, Metavision::EventCD &ev, Metavision::timestamp t_shift = 0) {
     ev.t = (in & TS_MASK) - t_shift;
-    ev.x = static_cast<unsigned short>((in & X_MASK) >> TS_BITS);
-    ev.y = static_cast<unsigned short>((in & Y_MASK) >> (TS_BITS + X_BITS));
-    ev.p = static_cast<short>((in & P_MASK) >> (TS_BITS + X_BITS + Y_BITS));
+    ev.x = static_cast<uint16_t>((in & X_MASK) >> TS_BITS);
+    ev.y = static_cast<uint16_t>((in & Y_MASK) >> (TS_BITS + X_BITS));
+    ev.p = static_cast<int16_t>((in & P_MASK) >> (TS_BITS + X_BITS + Y_BITS));
 }
 
 #endif // METAVISION_HAL_SAMPLE_EVENTS_FORMAT_H

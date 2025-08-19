@@ -39,7 +39,7 @@ public:
     virtual bool set_mode_slave();
     virtual I_CameraSynchronization::SyncMode get_mode();
     virtual I_HW_Identification::SensorInfo get_sensor_info();
-    long long get_sensor_id();
+    int64_t get_sensor_id();
     virtual int get_illumination();
     virtual int get_temperature();
 

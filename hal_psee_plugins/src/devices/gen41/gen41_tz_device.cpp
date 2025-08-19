@@ -101,7 +101,7 @@ void TzGen41::spawn_facilities(DeviceBuilder &device_builder, const DeviceConfig
 
 TzGen41::~TzGen41() {}
 
-long long TzGen41::get_sensor_id() {
+int64_t TzGen41::get_sensor_id() {
     return (*register_map)[SENSOR_PREFIX + "Reserved_0014"].read_value();
 }
 

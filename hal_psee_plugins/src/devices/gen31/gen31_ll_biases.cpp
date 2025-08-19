@@ -144,11 +144,11 @@ std::map<std::string, Gen31LLBias> &get_gen31_biases_map() {
 #include "gen3_idac_railp.calib.cc"
 #include "vdac18_8m1.calib.cc"
 
-std::map<long, long long> vdac18_map_s;
+std::map<long, int64_t> vdac18_map_s;
 std::map<CCam3BiasEncoding, int, CCam3BiasEncoding::Cmp_VDac> inv_vdac18_map_s;
 
-std::map<long, long long> load_vdac18_calibration(std::istream &ifs, bool is_voltage, long long config) {
-    std::map<long, long long> calibration_data;
+std::map<long, int64_t> load_vdac18_calibration(std::istream &ifs, bool is_voltage, int64_t config) {
+    std::map<long, int64_t> calibration_data;
     char buf[256];
 
     // Read data
@@ -161,7 +161,7 @@ std::map<long, long long> load_vdac18_calibration(std::istream &ifs, bool is_vol
         if (ifs.gcount() != 0) {
             sscanf(buf, "%u , %u , %u , %u , %u , %u , %u", &mv_value, &dec_value, &prev_value, &next_value, &pn_value,
                    &cas_value, &bin_value);
-            long long bin_data = (0LL << 31)   // bias enable
+            int64_t bin_data = (0LL << 31)   // bias enable
                                  + (1LL << 30) // output enable
                                  + ((pn_value == 1 ? 1LL : 0LL) << 29) + ((cas_value == 1 ? 1LL : 0LL) << 28) +
                                  ((is_voltage ? 1LL : 0LL) << 27) + (config << 21) + bin_value;
@@ -176,7 +176,7 @@ std::map<long, long long> load_vdac18_calibration(std::istream &ifs, bool is_vol
     return calibration_data;
 }
 
-bool load_vdac18_calibration(std::map<long, long long> &vdac18_map_s) {
+bool load_vdac18_calibration(std::map<long, int64_t> &vdac18_map_s) {
     if (vdac18_map_s.size() == 0) {
         std::string str(vdac18_8m1);
         std::istringstream mistr(str);
@@ -214,7 +214,7 @@ void init_map_vdac18() {
     }
 }
 
-long long get_vdac18_values(long value) {
+int64_t get_vdac18_values(long value) {
     if (vdac18_map_s.empty()) {
         init_map_vdac18();
     }

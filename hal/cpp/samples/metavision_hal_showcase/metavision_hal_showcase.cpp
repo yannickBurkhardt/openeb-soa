@@ -336,7 +336,7 @@ int main(int argc, char *argv[]) {
         using namespace std::chrono;
         milliseconds last_update_monitoring = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
         while (!stop_decoding) {
-            short ret = i_eventsstream->poll_buffer();
+            int16_t ret = i_eventsstream->poll_buffer();
             if (ret < 0) {
                 std::cout << "End of file" << std::endl;
                 i_eventsstream->stop();

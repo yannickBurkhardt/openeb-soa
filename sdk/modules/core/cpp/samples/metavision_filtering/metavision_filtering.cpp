@@ -76,8 +76,8 @@ int main(int argc, char *argv[]) {
     } else {
         cam = Metavision::Camera::from_first_available();
     }
-    const unsigned short width  = cam.geometry().get_width();
-    const unsigned short height = cam.geometry().get_height();
+    const uint16_t width  = cam.geometry().get_width();
+    const uint16_t height = cam.geometry().get_height();
 
     Metavision::RoiFilterAlgorithm roi_filter(150, 150, width - 150, height - 150, false);
     std::atomic<bool> roi_filter_enabled = false;

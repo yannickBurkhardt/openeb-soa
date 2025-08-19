@@ -36,7 +36,7 @@ BOOST_FORCEINLINE void cross_platform_prefetch(void *addr, ...) {
 #endif
 }
 
-BOOST_FORCEINLINE int cross_platform_popcount(unsigned long long input_num) {
+BOOST_FORCEINLINE int cross_platform_popcount(uint64_t input_num) {
 #ifdef _MSC_VER
     return static_cast<int>(_mm_popcnt_u64(input_num));
 #else

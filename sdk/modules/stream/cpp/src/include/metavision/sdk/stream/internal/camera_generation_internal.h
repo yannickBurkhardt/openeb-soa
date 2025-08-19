@@ -20,7 +20,7 @@ class Device;
 
 struct CameraGeneration::Private {
     Private(const std::string &name);
-    Private(short version_major, short version_minor, const std::string &name);
+    Private(int16_t version_major, int16_t version_minor, const std::string &name);
 
     virtual ~Private();
 
@@ -38,11 +38,11 @@ struct CameraGeneration::Private {
     bool operator>=(const CameraGeneration::Private &c) const;
 
     static CameraGeneration *build(const std::string &name);
-    static CameraGeneration *build(short version_major, short version_minor, const std::string &name = std::string());
+    static CameraGeneration *build(int16_t version_major, int16_t version_minor, const std::string &name = std::string());
     static CameraGeneration *build(Device &device);
 
-    const short major_{-1};
-    const short minor_{-1};
+    const int16_t major_{-1};
+    const int16_t minor_{-1};
     const std::string name_;
 };
 

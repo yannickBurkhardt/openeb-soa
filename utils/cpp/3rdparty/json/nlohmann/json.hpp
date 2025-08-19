@@ -11885,7 +11885,7 @@ class json_pointer
         }
 
         std::size_t processed_chars = 0;
-        unsigned long long res = 0;
+        uint64_t res = 0;
         JSON_TRY
         {
             res = std::stoull(s, &processed_chars);
@@ -11903,7 +11903,7 @@ class json_pointer
 
         // only triggered on special platforms (like 32bit), see also
         // https://github.com/nlohmann/json/pull/2203
-        if (res >= static_cast<unsigned long long>((std::numeric_limits<size_type>::max)()))
+        if (res >= static_cast<uint64_t>((std::numeric_limits<size_type>::max)()))
         {
             JSON_THROW(detail::out_of_range::create(410, "array index " + s + " exceeds size_type")); // LCOV_EXCL_LINE
         }
@@ -19394,7 +19394,7 @@ class basic_json
     @liveexample{The example below shows several conversions from JSON values
     to other types. There a few things to note: (1) Floating-point numbers can
     be converted to integers\, (2) A JSON array can be converted to a standard
-    `std::vector<short>`\, (3) A JSON object can be converted to C++
+    `std::vector<int16_t>`\, (3) A JSON object can be converted to C++
     associative containers such as `std::unordered_map<std::string\,
     json>`.,get__ValueType_const}
 
@@ -19492,7 +19492,7 @@ class basic_json
     @liveexample{The example below shows several conversions from JSON values
     to other types. There a few things to note: (1) Floating-point numbers can
     be converted to integers\, (2) A JSON array can be converted to a standard
-    `std::vector<short>`\, (3) A JSON object can be converted to C++
+    `std::vector<int16_t>`\, (3) A JSON object can be converted to C++
     associative containers such as `std::unordered_map<std::string\,
     json>`.,get_to}
 
@@ -19700,7 +19700,7 @@ class basic_json
     @liveexample{The example below shows several conversions from JSON values
     to other types. There a few things to note: (1) Floating-point numbers can
     be converted to integers\, (2) A JSON array can be converted to a standard
-    `std::vector<short>`\, (3) A JSON object can be converted to C++
+    `std::vector<int16_t>`\, (3) A JSON object can be converted to C++
     associative containers such as `std::unordered_map<std::string\,
     json>`.,operator__ValueType}
 

@@ -134,7 +134,7 @@ TEST_F(HalToySamplePlugin_GTest, record_and_read_back) {
     i_events_stream->log_raw_data(rawfile_to_log_path);
     i_events_stream->start();
     while (n_cd_events_decoded < 1000) { // To be sure to record something
-        short ret = i_events_stream->wait_next_buffer();
+        int16_t ret = i_events_stream->wait_next_buffer();
         ASSERT_LE(0, ret);
 
         auto raw_data = i_events_stream->get_latest_raw_data();
@@ -162,7 +162,7 @@ TEST_F(HalToySamplePlugin_GTest, record_and_read_back) {
             n_cd_events_decoded += std::distance(begin, end);
         });
     i_events_stream->start();
-    short ret = i_events_stream->wait_next_buffer();
+    int16_t ret = i_events_stream->wait_next_buffer();
     while (ret > 0) { // To be sure to record something
         auto raw_data = i_events_stream->get_latest_raw_data();
         i_eventsstreamdecoder->decode(raw_data);

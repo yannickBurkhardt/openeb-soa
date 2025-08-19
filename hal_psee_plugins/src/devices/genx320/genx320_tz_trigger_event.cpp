@@ -49,7 +49,7 @@ bool GenX320TzTriggerEvent::is_enabled(const Channel &channel) const {
     return (value == 1) && (value2 == 1);
 }
 
-std::map<I_TriggerIn::Channel, short> GenX320TzTriggerEvent::get_available_channels() const {
+std::map<I_TriggerIn::Channel, int16_t> GenX320TzTriggerEvent::get_available_channels() const {
     return chan_map_;
 }
 

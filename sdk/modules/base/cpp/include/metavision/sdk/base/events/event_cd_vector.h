@@ -25,19 +25,19 @@ namespace Metavision {
 /// Each set bit represents a triggered event at pos(base_x + vector_mask[i], y)
 class EventCDVector {
 public:
-    using timestamp = long long;
+    using timestamp = int64_t;
 
     EventCDVector() = default;
 
     /// @brief Construct and immediately push a single event
     EventCDVector(uint16_t x, uint16_t y, bool polarity,
                     uint32_t vector_mask, timestamp t) {
-        events_.push_back({x, y, static_cast<short>(polarity), t});
+        events_.push_back({x, y, static_cast<int16_t>(polarity), t});
     }
 
     /// @brief Add a new event directly into the underlying EventsSoA
     void push_back(uint16_t x, uint16_t y, bool polarity, timestamp t) {
-        events_.push_back({x, y, static_cast<short>(polarity), t});
+        events_.push_back({x, y, static_cast<int16_t>(polarity), t});
     }
 
     /// @brief Add an EventCD directly

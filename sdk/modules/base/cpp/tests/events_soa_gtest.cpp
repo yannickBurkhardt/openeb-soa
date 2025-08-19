@@ -118,9 +118,9 @@ TEST(EventsSoATest, InsertFrontBackMatchesStdVector) {
 
     // Fill with initial data
     for (int i = 0; i < 5; ++i) {
-        V val{static_cast<unsigned short>(i),
-              static_cast<unsigned short>(i + 10),
-              static_cast<short>(i - 5),
+        V val{static_cast<uint16_t>(i),
+              static_cast<uint16_t>(i + 10),
+              static_cast<int16_t>(i - 5),
               i * 100LL};
         soa.push_back(val);
         aos.push_back(val);
@@ -183,9 +183,9 @@ TEST(EventsSoATest, RandomizedPushPopMatchesStdVector) {
 
     std::mt19937 rng(42); // deterministic seed
     std::uniform_int_distribution<int> opdist(0, 1); // 0 = push, 1 = pop
-    std::uniform_int_distribution<int> ushort_dist(0, 65535);
-    std::uniform_int_distribution<int> short_dist(-32768, 32767);
-    std::uniform_int_distribution<long long> longlong_dist(-1000000LL, 1000000LL);
+    std::uniform_int_distribution<int> uint16_t_dist(0, 65535);
+    std::uniform_int_distribution<int> int16_t_dist(-32768, 32767);
+    std::uniform_int_distribution<int64_t> longlong_dist(-1000000LL, 1000000LL);
 
     const int operations = 1000;
     for (int i = 0; i < operations; ++i) {
@@ -194,9 +194,9 @@ TEST(EventsSoATest, RandomizedPushPopMatchesStdVector) {
         if (op == 0 || aos.empty()) {
             // Push
             V val;
-            val.x = static_cast<unsigned short>(ushort_dist(rng));
-            val.y = static_cast<unsigned short>(ushort_dist(rng));
-            val.p = static_cast<short>(short_dist(rng));
+            val.x = static_cast<uint16_t>(uint16_t_dist(rng));
+            val.y = static_cast<uint16_t>(uint16_t_dist(rng));
+            val.p = static_cast<int16_t>(int16_t_dist(rng));
             val.t = longlong_dist(rng);
 
             soa.push_back(val);
@@ -230,10 +230,10 @@ TEST(EventsSoA, RangeInsertMatchesStdVector) {
     // Fill initial events
     for (int i = 0; i < 10; ++i) {
         EventType e{
-            static_cast<unsigned short>(i),
-            static_cast<unsigned short>(i + 10),
-            static_cast<short>(i + 100),
-            static_cast<long long>(i + 1000)
+            static_cast<uint16_t>(i),
+            static_cast<uint16_t>(i + 10),
+            static_cast<int16_t>(i + 100),
+            static_cast<int64_t>(i + 1000)
         };
         events_soa.push_back(e);
         events_std.push_back(e);
@@ -243,10 +243,10 @@ TEST(EventsSoA, RangeInsertMatchesStdVector) {
     std::vector<EventType> range;
     for (int i = 0; i < 5; ++i) {
         range.push_back(EventType{
-            static_cast<unsigned short>(100 + i),
-            static_cast<unsigned short>(200 + i),
-            static_cast<short>(300 + i),
-            static_cast<long long>(400 + i)
+            static_cast<uint16_t>(100 + i),
+            static_cast<uint16_t>(200 + i),
+            static_cast<int16_t>(300 + i),
+            static_cast<int64_t>(400 + i)
         });
     }
 
@@ -274,7 +274,7 @@ TEST(EventsSoATest, EraseTest) {
 
     // Fill with 100 elements
     for (int i = 0; i < 100; ++i) {
-        EventType e{static_cast<short unsigned int>(i), static_cast<unsigned short>(i+1), static_cast<short>(i+2), i*1000LL};
+        EventType e{static_cast<uint16_t>(i), static_cast<uint16_t>(i+1), static_cast<int16_t>(i+2), i*1000LL};
         soa.push_back(e);
         aos.push_back(e);
     }

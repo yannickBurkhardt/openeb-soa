@@ -281,7 +281,7 @@ public:
 
 class DummyTriggerIn : public I_TriggerIn {
 private:
-    std::map<Channel, short> channel_map_{{Channel::Main, 0}, {Channel::Aux, 1}, {Channel::Loopback, 2}};
+    std::map<Channel, int16_t> channel_map_{{Channel::Main, 0}, {Channel::Aux, 1}, {Channel::Loopback, 2}};
     std::map<Channel, bool> status_map_{{Channel::Main, false}, {Channel::Aux, false}, {Channel::Loopback, false}};
 
 public:
@@ -309,7 +309,7 @@ public:
         return it->second;
     }
 
-    std::map<Channel, short> get_available_channels() const override {
+    std::map<Channel, int16_t> get_available_channels() const override {
         return channel_map_;
     }
 };

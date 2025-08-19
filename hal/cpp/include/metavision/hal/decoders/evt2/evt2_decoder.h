@@ -152,14 +152,14 @@ private:
                 const EVT2Event2D *ev_td = reinterpret_cast<const EVT2Event2D *>(ev);
                 last_timestamp_          = base_time_ + ev_td->timestamp;
                 last_timestamp_set_      = true;
-                cd_forwarder.forward(static_cast<unsigned short>(ev_td->x), static_cast<unsigned short>(ev_td->y),
+                cd_forwarder.forward(static_cast<uint16_t>(ev_td->x), static_cast<uint16_t>(ev_td->y),
                                      ev_td->type & 1, last_timestamp_);
             } else if (type == static_cast<EventTypesUnderlying_t>(EventTypesEnum::EXT_TRIGGER)) {
                 const EVT2EventExtTrigger *ev_ext_raw = reinterpret_cast<const EVT2EventExtTrigger *>(ev);
                 last_timestamp_                       = base_time_ + ev_ext_raw->timestamp;
                 last_timestamp_set_                   = true;
-                trigger_forwarder.forward(static_cast<short>(ev_ext_raw->value), last_timestamp_,
-                                          static_cast<short>(ev_ext_raw->id));
+                trigger_forwarder.forward(static_cast<int16_t>(ev_ext_raw->value), last_timestamp_,
+                                          static_cast<int16_t>(ev_ext_raw->id));
             } else if (type == static_cast<EventTypesUnderlying_t>(EventTypesEnum::OTHER)) {
                 const EVT2EventMonitor *ev_monitor = reinterpret_cast<const EVT2EventMonitor *>(ev);
                 if (monitoring_id_blacklist_.count(ev_monitor->subtype) == 0) {

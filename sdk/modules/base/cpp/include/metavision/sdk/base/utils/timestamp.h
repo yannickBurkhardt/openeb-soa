@@ -15,7 +15,7 @@
 namespace Metavision {
 
 /// Type to represent time in microseconds
-typedef long long timestamp;
+typedef int64_t timestamp;
 
 } // namespace Metavision
 

@@ -35,8 +35,8 @@ namespace LoadApplicativeFirmwareToFx3RAM {
 
 #define VENDORCMD_TIMEOUT (5000) // Timeout for each vendor command is set to 5 seconds.
 
-#define GET_LSW(v) ((unsigned short)((v)&0xFFFF))
-#define GET_MSW(v) ((unsigned short)((v) >> 16))
+#define GET_LSW(v) ((uint16_t)((v)&0xFFFF))
+#define GET_MSW(v) ((uint16_t)((v) >> 16))
 
 const int i2c_eeprom_size[] = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072};
 

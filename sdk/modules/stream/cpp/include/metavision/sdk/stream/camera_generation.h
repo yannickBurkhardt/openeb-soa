@@ -25,10 +25,10 @@ public:
     virtual ~CameraGeneration();
 
     /// @brief Returns the major version of the camera's generation
-    short version_major() const;
+    int16_t version_major() const;
 
     /// @brief Returns the minor version of the camera's generation
-    short version_minor() const;
+    int16_t version_minor() const;
 
     /// @brief Returns the name corresponding to the camera's generation
     std::string name() const;

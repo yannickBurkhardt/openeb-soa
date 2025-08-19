@@ -63,8 +63,8 @@ int main(int argc, char *argv[]) {
         MV_LOG_ERROR() << e.what();
         return 1;
     }
-    const unsigned short width  = camera.geometry().get_width();
-    const unsigned short height = camera.geometry().get_height();
+    const uint16_t width  = camera.geometry().get_width();
+    const uint16_t height = camera.geometry().get_height();
 
     // get the base of the input filename and the path
     const std::string output_base = std::regex_replace(event_file_path, std::regex("\\.[^.]*$"), "");

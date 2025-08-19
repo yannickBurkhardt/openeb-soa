@@ -71,9 +71,9 @@ public:
                     cur_cd_buffer_ = cd_buffer_pool_.acquire();
                     cur_cd_buffer_->clear();
                 }
-                cur_cd_buffer_->emplace_back(static_cast<unsigned short>(std::stoul(tokens[0])),
-                                             static_cast<unsigned short>(std::stoul(tokens[1])),
-                                             static_cast<short>(std::stoi(tokens[2])), std::stoll(tokens[3]));
+                cur_cd_buffer_->emplace_back(static_cast<uint16_t>(std::stoul(tokens[0])),
+                                             static_cast<uint16_t>(std::stoul(tokens[1])),
+                                             static_cast<int16_t>(std::stoi(tokens[2])), std::stoll(tokens[3]));
             }
         }
     }

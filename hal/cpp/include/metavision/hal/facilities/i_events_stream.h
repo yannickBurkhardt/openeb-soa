@@ -63,14 +63,14 @@ public:
     ///         -  1 if there are events available
     ///         -  0 if no events are available
     ///         - -1 if an error occurred or no more events will ever be available (like when reaching end of file)
-    short poll_buffer();
+    int16_t poll_buffer();
 
     /// @brief Returns a value that informs if some events are available in the buffer from the camera
     /// and blocks waiting until more events are available
     /// @return Value that informs if some events are available in the buffer
     ///         -  1 if there are events available
     ///         - -1 if an error occurred or no more events will ever be available (like when reaching end of file)
-    short wait_next_buffer();
+    int16_t wait_next_buffer();
 
     /// @brief Gets latest raw data from the event buffer
     ///

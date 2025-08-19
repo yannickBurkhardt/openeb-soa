@@ -27,8 +27,8 @@ namespace LoadApplicativeFirmwareToFx3RAM {
 //
 //#define VENDORCMD_TIMEOUT   (5000)      // Timeout for each vendor command is set to 5 seconds.
 //
-//#define GET_LSW(v)  ((unsigned short)((v) & 0xFFFF))
-//#define GET_MSW(v)  ((unsigned short)((v) >> 16))
+//#define GET_LSW(v)  ((uint16_t)((v) & 0xFFFF))
+//#define GET_MSW(v)  ((uint16_t)((v) >> 16))
 //
 
 int read_firmware_image(const char *filename, unsigned char *buf, int *romsize);

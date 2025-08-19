@@ -25,7 +25,7 @@ void export_event_ext_trigger(py::module &m) {
     m.attr("EventExtTrigger") = array.dtype();
 
     py::class_<Metavision::EventExtTrigger>(m, "_EventExtTrigger_decode")
-        .def(py::init<short, Metavision::timestamp, short>());
+        .def(py::init<int16_t, Metavision::timestamp, int16_t>());
 
     Metavision::export_PODEventBuffer<Metavision::EventExtTrigger>(m, "EventExtTriggerBuffer");
 }

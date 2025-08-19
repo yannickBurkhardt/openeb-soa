@@ -31,7 +31,7 @@ public:
     /// @param p Polarity of the external trigger event
     /// @param t Timestamp of the external trigger event (in us)
     /// @param id Channel ID of the external trigger event
-    inline EventExtTrigger(short p, timestamp t, short id) : p(p), t(t), id(id) {}
+    inline EventExtTrigger(int16_t p, timestamp t, int16_t id) : p(p), t(t), id(id) {}
 
     /// Writes EventExtTrigger in buffer
     void write_event(void *buf, timestamp origin) const {
@@ -108,13 +108,13 @@ public:
     typedef RawEvent RawEventV1;
 
     /// Polarity representing the change of contrast (1: positive, 0: negative)
-    short p;
+    int16_t p;
 
     /// Timestamp at which the event happened (in us)
     timestamp t;
 
     /// ID of the external trigger
-    short id;
+    int16_t id;
 };
 } // namespace Metavision
 

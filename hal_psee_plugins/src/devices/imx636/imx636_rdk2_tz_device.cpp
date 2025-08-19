@@ -105,7 +105,7 @@ void TzRdk2Imx636::spawn_facilities(DeviceBuilder &device_builder, const DeviceC
 
 TzRdk2Imx636::~TzRdk2Imx636() {}
 
-long long TzRdk2Imx636::get_sensor_id() {
+int64_t TzRdk2Imx636::get_sensor_id() {
     return (*register_map)[SENSOR_PREFIX + "chip_id"].read_value();
 }
 

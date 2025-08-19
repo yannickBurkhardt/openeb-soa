@@ -158,8 +158,8 @@ void EventFileWriter::Private::add_metadata_map_from_camera(const Camera &camera
         return;
     }
 
-    const unsigned short width                                = camera.geometry().get_width();
-    const unsigned short height                               = camera.geometry().get_height();
+    const uint16_t width                                = camera.geometry().get_width();
+    const uint16_t height                               = camera.geometry().get_height();
     auto &config                                              = camera.get_camera_configuration();
     std::unordered_map<std::string, std::string> metadata_map = {
         {"plugin_integrator_name", config.integrator},

@@ -53,7 +53,7 @@ bool Evk2TzTriggerEvent::is_enabled(const Channel &channel) const {
     return (value == 1);
 }
 
-std::map<I_TriggerIn::Channel, short> Evk2TzTriggerEvent::get_available_channels() const {
+std::map<I_TriggerIn::Channel, int16_t> Evk2TzTriggerEvent::get_available_channels() const {
     return chan_map_;
 }
 

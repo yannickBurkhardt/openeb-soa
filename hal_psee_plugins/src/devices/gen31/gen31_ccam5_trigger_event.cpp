@@ -48,7 +48,7 @@ bool Gen31Ccam5TriggerEvent::is_enabled(const Channel &channel) const {
     return (*register_map_)["SYSTEM_MONITOR/EXT_TRIGGERS/ENABLE"]["TRIGGER_" + std::to_string(it->second)].read_value();
 }
 
-std::map<I_TriggerIn::Channel, short> Gen31Ccam5TriggerEvent::get_available_channels() const {
+std::map<I_TriggerIn::Channel, int16_t> Gen31Ccam5TriggerEvent::get_available_channels() const {
     return chan_map_;
 }
 } // namespace Metavision

@@ -65,7 +65,7 @@ public:
     /// @return synchronization mode
     virtual SyncMode get_mode() const override final;
 
-    virtual long long get_sensor_id();
+    virtual int64_t get_sensor_id();
 
     /// @brief Gets the trigger in facility
     /// @param checked If true, will throw an exception if the trigger in facility has not been set

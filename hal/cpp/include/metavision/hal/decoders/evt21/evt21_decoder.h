@@ -152,7 +152,7 @@ private:
                     while (vector_mask) {
                         offset = ctz_not_zero(vector_mask);
                         vector_mask &= ~(1 << offset);
-                        cd_forwarder.forward(base_x + offset, y, static_cast<short>(polarity), last_timestamp<DO_TIMESHIFT>());
+                        cd_forwarder.forward(base_x + offset, y, static_cast<int16_t>(polarity), last_timestamp<DO_TIMESHIFT>());
                     }
                 }
 
@@ -170,8 +170,8 @@ private:
                 const Event_EXT_TRIGGER *ev_exttrigger = reinterpret_cast<const Event_EXT_TRIGGER *>(cur_ev);
                 last_timestamp_                        = (last_timestamp_ & ~((1ULL << 6) - 1)) + ev_exttrigger->ts;
                 last_timestamp_set_                    = true;
-                trigger_forwarder.forward(static_cast<short>(ev_exttrigger->p), last_timestamp<DO_TIMESHIFT>(),
-                                          static_cast<short>(ev_exttrigger->id));
+                trigger_forwarder.forward(static_cast<int16_t>(ev_exttrigger->p), last_timestamp<DO_TIMESHIFT>(),
+                                          static_cast<int16_t>(ev_exttrigger->id));
                 ++cur_ev;
             } else if (type == static_cast<EventTypesUnderlying_t>(Evt21EventTypes_4bits::OTHERS)) {
                 const Event_OTHERS *ev_other = reinterpret_cast<const Event_OTHERS *>(cur_ev);

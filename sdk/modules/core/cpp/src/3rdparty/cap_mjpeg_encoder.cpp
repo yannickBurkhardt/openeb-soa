@@ -698,8 +698,8 @@ static const char jpegHeader[] =
 
 #ifdef WITH_NEON
 // FDCT with postscaling
-static void aan_fdct8x8( const short *src, short *dst,
-                        int step, const short *postscale )
+static void aan_fdct8x8( const int16_t *src, int16_t *dst,
+                        int step, const int16_t *postscale )
 {
     // Pass 1: process rows
     int16x8_t x0 = vld1q_s16(src);    int16x8_t x1 = vld1q_s16(src + step*7);
@@ -727,7 +727,7 @@ static void aan_fdct8x8( const short *src, short *dst,
 
     int16x8_t res0 = x1;
     int16x8_t res4 = x2;
-    x0 = vqdmulhq_n_s16(vsubq_s16(x0, x4), (short)(C0_707*2));
+    x0 = vqdmulhq_n_s16(vsubq_s16(x0, x4), (int16_t)(C0_707*2));
     x1 = vaddq_s16(x4, x0);    x4 = vsubq_s16(x4, x0);
 
     int16x8_t res2 = x4;
@@ -736,12 +736,12 @@ static void aan_fdct8x8( const short *src, short *dst,
     x0 = t2;    x1 = t4;
     x2 = t3;    x3 = t1;
     x0 = vaddq_s16(x0, x1);    x1 = vaddq_s16(x1, x2);    x2 = vaddq_s16(x2, x3);
-    x1 =vqdmulhq_n_s16(x1, (short)(C0_707*2));
+    x1 =vqdmulhq_n_s16(x1, (int16_t)(C0_707*2));
 
     x4 = vaddq_s16(x1, x3);    x3 = vsubq_s16(x3, x1);
-    x1 = vqdmulhq_n_s16(vsubq_s16(x0, x2), (short)(C0_382*2));
-    x0 = vaddq_s16(vqdmulhq_n_s16(x0, (short)(C0_541*2)), x1);
-    x2 = vaddq_s16(vshlq_n_s16(vqdmulhq_n_s16(x2, (short)C1_306), 1), x1);
+    x1 = vqdmulhq_n_s16(vsubq_s16(x0, x2), (int16_t)(C0_382*2));
+    x0 = vaddq_s16(vqdmulhq_n_s16(x0, (int16_t)(C0_541*2)), x1);
+    x2 = vaddq_s16(vshlq_n_s16(vqdmulhq_n_s16(x2, (int16_t)C1_306), 1), x1);
 
     x1 = vaddq_s16(x0, x3);    x3 = vsubq_s16(x3, x0);
     x0 = vaddq_s16(x4, x2);    x4 = vsubq_s16(x4, x2);
@@ -870,7 +870,7 @@ vst1q_s16((addr), reg);
     STORE_DESCALED(dst, x1, postscale);
     STORE_DESCALED(dst + 4*8, x2, postscale + 4*8);
 
-    x0 = vqdmulhq_n_s16(vsubq_s16(x0, x4), (short)(C0_707*2));
+    x0 = vqdmulhq_n_s16(vsubq_s16(x0, x4), (int16_t)(C0_707*2));
 
     x1 = vaddq_s16(x4, x0);    x4 = vsubq_s16(x4, x0);
 
@@ -882,13 +882,13 @@ vst1q_s16((addr), reg);
 
     x0 = vaddq_s16(x0, x1);    x1 = vaddq_s16(x1, x2);    x2 = vaddq_s16(x2, x3);
 
-    x1 =vqdmulhq_n_s16(x1, (short)(C0_707*2));
+    x1 =vqdmulhq_n_s16(x1, (int16_t)(C0_707*2));
 
     x4 = vaddq_s16(x1, x3);    x3 = vsubq_s16(x3, x1);
 
-    x1 = vqdmulhq_n_s16(vsubq_s16(x0, x2), (short)(C0_382*2));
-    x0 = vaddq_s16(vqdmulhq_n_s16(x0, (short)(C0_541*2)), x1);
-    x2 = vaddq_s16(vshlq_n_s16(vqdmulhq_n_s16(x2, (short)C1_306), 1), x1);
+    x1 = vqdmulhq_n_s16(vsubq_s16(x0, x2), (int16_t)(C0_382*2));
+    x0 = vaddq_s16(vqdmulhq_n_s16(x0, (int16_t)(C0_541*2)), x1);
+    x2 = vaddq_s16(vshlq_n_s16(vqdmulhq_n_s16(x2, (int16_t)C1_306), 1), x1);
 
     x1 = vaddq_s16(x0, x3);    x3 = vsubq_s16(x3, x0);
     x0 = vaddq_s16(x4, x2);    x4 = vsubq_s16(x4, x2);
@@ -901,8 +901,8 @@ vst1q_s16((addr), reg);
 
 #else
 // FDCT with postscaling
-static void aan_fdct8x8( const short *src, short *dst,
-                        int step, const short *postscale )
+static void aan_fdct8x8( const int16_t *src, int16_t *dst,
+                        int step, const int16_t *postscale )
 {
     int workspace[64], *work = workspace;
     int  i;
@@ -976,14 +976,14 @@ static void aan_fdct8x8( const short *src, short *dst,
         x3 = x0 + x1; x0 -= x1;
         x1 = x2 + x3; x2 -= x3;
 
-        dst[0] = (short)DCT_DESCALE(x1*postscale[0], postshift);
-        dst[4] = (short)DCT_DESCALE(x2*postscale[4], postshift);
+        dst[0] = (int16_t)DCT_DESCALE(x1*postscale[0], postshift);
+        dst[4] = (int16_t)DCT_DESCALE(x2*postscale[4], postshift);
 
         x0 = DCT_DESCALE((x0 - x4)*C0_707, fixb);
         x1 = x4 + x0; x4 -= x0;
 
-        dst[2] = (short)DCT_DESCALE(x4*postscale[2], postshift);
-        dst[6] = (short)DCT_DESCALE(x1*postscale[6], postshift);
+        dst[2] = (int16_t)DCT_DESCALE(x4*postscale[2], postshift);
+        dst[6] = (int16_t)DCT_DESCALE(x1*postscale[6], postshift);
 
         x0 = work[8*0]; x1 = work[8*3];
         x2 = work[8*4]; x3 = work[8*7];
@@ -999,16 +999,16 @@ static void aan_fdct8x8( const short *src, short *dst,
         x1 = x0 + x3; x3 -= x0;
         x0 = x4 + x2; x4 -= x2;
 
-        dst[5] = (short)DCT_DESCALE(x1*postscale[5], postshift);
-        dst[1] = (short)DCT_DESCALE(x0*postscale[1], postshift);
-        dst[7] = (short)DCT_DESCALE(x4*postscale[7], postshift);
-        dst[3] = (short)DCT_DESCALE(x3*postscale[3], postshift);
+        dst[5] = (int16_t)DCT_DESCALE(x1*postscale[5], postshift);
+        dst[1] = (int16_t)DCT_DESCALE(x0*postscale[1], postshift);
+        dst[7] = (int16_t)DCT_DESCALE(x4*postscale[7], postshift);
+        dst[3] = (int16_t)DCT_DESCALE(x3*postscale[3], postshift);
     }
 }
 #endif
 
 
-inline void convertToYUV(int colorspace, int channels, int input_channels, short* UV_data, short* Y_data, const uchar* pix_data, int y_limit, int x_limit, int step, int u_plane_ofs, int v_plane_ofs)
+inline void convertToYUV(int colorspace, int channels, int input_channels, int16_t* UV_data, int16_t* Y_data, const uchar* pix_data, int y_limit, int x_limit, int step, int u_plane_ofs, int v_plane_ofs)
 {
     int i, j;
     const int UV_step = 16;
@@ -1024,16 +1024,16 @@ inline void convertToYUV(int colorspace, int channels, int input_channels, short
 #ifdef WITH_NEON
                 {
                     uint16x8_t masklo = vdupq_n_u16(255);
-                    uint16x8_t lane = vld1q_u16((unsigned short*)(pix_data+v_plane_ofs));
+                    uint16x8_t lane = vld1q_u16((uint16_t*)(pix_data+v_plane_ofs));
                     uint16x8_t t1 = vaddq_u16(vshrq_n_u16(lane, 8), vandq_u16(lane, masklo));
-                    lane = vld1q_u16((unsigned short*)(pix_data + v_plane_ofs + step));
+                    lane = vld1q_u16((uint16_t*)(pix_data + v_plane_ofs + step));
                     uint16x8_t t2 = vaddq_u16(vshrq_n_u16(lane, 8), vandq_u16(lane, masklo));
                     t1 = vaddq_u16(t1, t2);
                     vst1q_s16(UV_data, vsubq_s16(vreinterpretq_s16_u16(t1), vdupq_n_s16(128*4)));
 
-                    lane = vld1q_u16((unsigned short*)(pix_data+u_plane_ofs));
+                    lane = vld1q_u16((uint16_t*)(pix_data+u_plane_ofs));
                     t1 = vaddq_u16(vshrq_n_u16(lane, 8), vandq_u16(lane, masklo));
-                    lane = vld1q_u16((unsigned short*)(pix_data + u_plane_ofs + step));
+                    lane = vld1q_u16((uint16_t*)(pix_data + u_plane_ofs + step));
                     t2 = vaddq_u16(vshrq_n_u16(lane, 8), vandq_u16(lane, masklo));
                     t1 = vaddq_u16(t1, t2);
                     vst1q_s16(UV_data + 8, vsubq_s16(vreinterpretq_s16_u16(t1), vdupq_n_s16(128*4)));
@@ -1112,9 +1112,9 @@ inline void convertToYUV(int colorspace, int channels, int input_channels, short
                     }
 
                     int j2 = j >> (x_scale - 1);
-                    Y_data[j] = (short)Y;
-                    UV_data[j2] = (short)(UV_data[j2] + U);
-                    UV_data[j2 + 8] = (short)(UV_data[j2 + 8] + V);
+                    Y_data[j] = (int16_t)Y;
+                    UV_data[j2] = (int16_t)(UV_data[j2] + U);
+                    UV_data[j2 + 8] = (int16_t)(UV_data[j2 + 8] + V);
                 }
 
                 pix_data -= x_limit*input_channels;
@@ -1131,7 +1131,7 @@ inline void convertToYUV(int colorspace, int channels, int input_channels, short
         for( i = 0; i < y_limit; i++, pix_data += step, Y_data += Y_step )
         {
             for( j = 0; j < x_limit; j++ )
-                Y_data[j] = (short)(pix_data[j]*4 - 128*4);
+                Y_data[j] = (int16_t)(pix_data[j]*4 - 128*4);
         }
     }
 }
@@ -1148,7 +1148,7 @@ public:
         int _colorspace,
         unsigned (&_huff_dc_tab)[2][16],
         unsigned (&_huff_ac_tab)[2][256],
-        short (&_fdct_qtab)[2][64],
+        int16_t (&_fdct_qtab)[2][64],
         uchar* _cat_table,
         mjpeg_buffer_keeper& _buffer_list,
         double nstripes
@@ -1209,12 +1209,12 @@ public:
         int x, y;
         int i, j;
 
-        short  buffer[4096];
+        int16_t  buffer[4096];
         int  x_scale = channels > 1 ? 2 : 1, y_scale = x_scale;
         int  dc_pred[] = { 0, 0, 0 };
         int  x_step = x_scale * 8;
         int  y_step = y_scale * 8;
-        short  block[6][64];
+        int16_t  block[6][64];
         int  luma_count = x_scale*y_scale;
         int  block_count = luma_count + channels - 1;
         int u_plane_ofs = step*height;
@@ -1235,8 +1235,8 @@ public:
                 int x_limit = x_step;
                 int y_limit = y_step;
                 const uchar* pix_data = data + x*input_channels;
-                short* Y_data = block[0];
-                short* UV_data = block[luma_count];
+                int16_t* Y_data = block[0];
+                int16_t* UV_data = block[luma_count];
 
                 if( x + x_limit > width ) x_limit = width - x;
                 if( y + y_limit > height ) y_limit = height - y;
@@ -1249,7 +1249,7 @@ public:
                 {
                     int is_chroma = i >= luma_count;
                     int src_step = x_scale * 8;
-                    const short* src_ptr = block[i & -2] + (i & 1)*8;
+                    const int16_t* src_ptr = block[i & -2] + (i & 1)*8;
 
                     aan_fdct8x8( src_ptr, buffer, src_step, fdct_qtab[is_chroma] );
 
@@ -1282,8 +1282,8 @@ public:
                     int x_limit = x_step;
                     int y_limit = y_step;
                     const uchar* pix_data = data + x*input_channels;
-                    short* Y_data = block[0];
-                    short* UV_data = block[luma_count];
+                    int16_t* Y_data = block[0];
+                    int16_t* UV_data = block[luma_count];
 
                     if( x + x_limit > width ) x_limit = width - x;
                     if( y + y_limit > height ) y_limit = height - y;
@@ -1297,7 +1297,7 @@ public:
                         int is_chroma = i >= luma_count;
                         int src_step = x_scale * 8;
                         int run = 0, val;
-                        const short* src_ptr = block[i & -2] + (i & 1)*8;
+                        const int16_t* src_ptr = block[i & -2] + (i & 1)*8;
                         const unsigned* htable = huff_ac_tab[is_chroma];
 
                         aan_fdct8x8( src_ptr, buffer, src_step, fdct_qtab[is_chroma] );
@@ -1375,7 +1375,7 @@ private:
     const int colorspace;
     const unsigned (&huff_dc_tab)[2][16];
     const unsigned (&huff_ac_tab)[2][256];
-    const short (&fdct_qtab)[2][64];
+    const int16_t (&fdct_qtab)[2][64];
     const uchar* cat_table;
     int stripes_count;
 };
@@ -1412,12 +1412,12 @@ void MotionJpegWriter::writeFrameData( const uchar* data, int step, int colorspa
     //     encode block.
     int i, j;
     const int max_quality = 12;
-    short fdct_qtab[2][64];
+    int16_t fdct_qtab[2][64];
     unsigned huff_dc_tab[2][16];
     unsigned huff_ac_tab[2][256];
 
     int  x_scale = channels > 1 ? 2 : 1, y_scale = x_scale;
-    short  buffer[4096];
+    int16_t  buffer[4096];
     int*   hbuffer = (int*)buffer;
     int  luma_count = x_scale*y_scale;
     double _quality = quality*0.01*max_quality;
@@ -1449,7 +1449,7 @@ void MotionJpegWriter::writeFrameData( const uchar* data, int step, int colorspa
                 qval = 1;
             if( qval > 255 )
                 qval = 255;
-            fdct_qtab[i][idx] = (short)(cvRound((1 << (postshift + 11)))/
+            fdct_qtab[i][idx] = (int16_t)(cvRound((1 << (postshift + 11)))/
                                 (qval*chroma_scale*idct_prescale[idx]));
             container.putStreamByte( qval );
         }

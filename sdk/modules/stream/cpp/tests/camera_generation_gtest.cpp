@@ -29,7 +29,7 @@ protected:
 
     virtual void TearDown() override {}
 
-    void run_test(const std::string &file_basename, short version_major_expected, short version_minor_expected) {
+    void run_test(const std::string &file_basename, int16_t version_major_expected, int16_t version_minor_expected) {
         std::filesystem::path dataset_file_path =
             std::filesystem::path(GtestsParameters::instance().dataset_dir) / "openeb" / file_basename;
 

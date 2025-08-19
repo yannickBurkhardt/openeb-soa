@@ -16,8 +16,8 @@
 #include "metavision/hal/utils/data_transfer.h"
 #include "metavision/hal/utils/device_config.h"
 
-constexpr short SampleDataTransfer::PatternGenerator::SIZE_SQUARE;
-constexpr short SampleDataTransfer::PatternGenerator::N_RANDOM;
+constexpr int16_t SampleDataTransfer::PatternGenerator::SIZE_SQUARE;
+constexpr int16_t SampleDataTransfer::PatternGenerator::N_RANDOM;
 constexpr Metavision::timestamp SampleDataTransfer::PatternGenerator::STEP_RANDOM;
 
 SampleDataTransfer::SampleDataTransfer(uint32_t raw_event_size_bytes) :

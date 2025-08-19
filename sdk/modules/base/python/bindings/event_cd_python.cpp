@@ -27,7 +27,7 @@ void export_event_cd(py::module &m) {
     m.attr("EventCD") = array.dtype();
 
     py::class_<Metavision::EventCD>(m, "_EventCD_decode")
-        .def(py::init<unsigned short, unsigned short, short, Metavision::timestamp>());
+        .def(py::init<uint16_t, uint16_t, int16_t, Metavision::timestamp>());
 
     Metavision::export_PODEventBuffer<Metavision::EventCD>(m, "EventCDBuffer");
 }

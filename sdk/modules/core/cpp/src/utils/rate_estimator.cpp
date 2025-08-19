@@ -40,7 +40,7 @@ RateEstimator::RateEstimator(timestamp step_time, timestamp window_time, timesta
 }
 
 void RateEstimator::add_data(timestamp time, size_t count) {
-    long long current_time = time;
+    int64_t current_time = time;
     if (!counts_.empty() && counts_.back().first == time) {
         counts_.back().second += count;
     } else {

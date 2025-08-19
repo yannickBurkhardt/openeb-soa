@@ -102,7 +102,7 @@ void TzImx636::spawn_facilities(DeviceBuilder &device_builder, const DeviceConfi
 
 TzImx636::~TzImx636() {}
 
-long long TzImx636::get_sensor_id() {
+int64_t TzImx636::get_sensor_id() {
     return (*register_map)[SENSOR_PREFIX + "Reserved_0014"].read_value();
 }
 

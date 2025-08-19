@@ -103,7 +103,7 @@ void TzEvk2Imx636::stop() {
     TzIssdDevice::stop();
 }
 
-long long TzEvk2Imx636::get_sensor_id() {
+int64_t TzEvk2Imx636::get_sensor_id() {
     return (*register_map)[SENSOR_PREFIX + "chip_id"].read_value();
 }
 

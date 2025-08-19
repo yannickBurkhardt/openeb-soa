@@ -47,7 +47,7 @@ public:
     /// get the type of sensor
     /// 0x90100402h uniform TD feedback PPD VGA
     /// 0x90100403h uniform EM HVGA
-    long long get_sensor_id();
+    int64_t get_sensor_id();
 
 protected:
     virtual void spawn_facilities(DeviceBuilder &device_builder, const DeviceConfig &device_config);

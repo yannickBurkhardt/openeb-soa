@@ -13,14 +13,6 @@ using EventType = EventCD;
 class EventsSoA {
 
 public:
-
-//     struct EventType {
-//         unsigned short x;
-//         unsigned short y;
-//         short p;
-//         long long t;
-//     };
-
     using size_type = std::size_t;
     using value_type = EventType;
 
@@ -28,19 +20,19 @@ public:
         reserve(n_events);
     }
 
-    std::vector<unsigned short> xs;
-    std::vector<unsigned short> ys;
-    std::vector<short> ps;
-    std::vector<long long> ts;
+    std::vector<uint16_t> xs;
+    std::vector<uint16_t> ys;
+    std::vector<int16_t> ps;
+    std::vector<int64_t> ts;
 
     // Proxy reference for element access
     struct Reference {
-        unsigned short &x;
-        unsigned short &y;
-        short &p;
-        long long &t;
+        uint16_t &x;
+        uint16_t &y;
+        int16_t &p;
+        int64_t &t;
 
-        Reference(unsigned short &xr, unsigned short &yr, short &pr, long long &tr)
+        Reference(uint16_t &xr, uint16_t &yr, int16_t &pr, int64_t &tr)
             : x(xr), y(yr), p(pr), t(tr) {}
 
         Reference &operator=(const EventType &val) {
@@ -121,60 +113,6 @@ public:
         return !(*this == other);
     }
 
-    // Iterator support
-    // struct Iterator {
-    //     EventsSoA *parent;
-    //     size_type index;
-    //     mutable Reference ref_cache; // stored proxy
-    
-    //     using iterator_category = std::random_access_iterator_tag;
-    //     using value_type = EventType;
-    //     using difference_type = std::ptrdiff_t;
-    //     using pointer = void;
-    //     using reference = Reference&; // important!
-    
-    //     // Default constructor
-    //     Iterator(EventsSoA *p, size_type i)
-    //         : parent(p), index(i),
-    //           ref_cache(p->xs[i], p->ys[i], p->ps[i], p->ts[i]) {}
-
-    //     // Copy constructor
-    //     Iterator(const Iterator& other)
-    //         : parent(other.parent),
-    //         index(other.index),
-    //         ref_cache(other.parent->xs[other.index],
-    //                     other.parent->ys[other.index],
-    //                     other.parent->ps[other.index],
-    //                     other.parent->ts[other.index]) {}
-
-    //     // Assignment operator
-    //     Iterator& operator=(const Iterator& other) {
-    //         if (this != &other) {
-    //             parent = other.parent;
-    //             index  = other.index;
-    //         }
-    //         return *this;
-    //     }
-        
-    //     reference operator*() const {
-    //         // rebind the proxy to the current element
-    //         ref_cache = EventType{parent->xs[index], parent->ys[index],
-    //                               parent->ps[index], parent->ts[index]};
-    //         return ref_cache;
-    //     }
-    
-    //     Iterator& operator++() { ++index; return *this; }
-    //     Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; }
-    //     Iterator& operator--() { --index; return *this; }
-    //     Iterator operator--(int) { Iterator tmp = *this; --(*this); return tmp; }
-    //     Iterator& operator+=(difference_type n) { index += n; return *this; }
-    //     Iterator& operator-=(difference_type n) { index -= n; return *this; }
-    //     friend Iterator operator+(Iterator it, difference_type n) { it += n; return it; }
-    //     friend Iterator operator-(Iterator it, difference_type n) { it -= n; return it; }
-    //     friend difference_type operator-(const Iterator &a, const Iterator &b) { return a.index - b.index; }
-    //     friend bool operator==(const Iterator &a, const Iterator &b) { return a.index == b.index; }
-    //     friend bool operator!=(const Iterator &a, const Iterator &b) { return a.index != b.index; }
-    // };    
     struct Iterator {
         EventsSoA *parent{nullptr};
         size_type index{0};
@@ -263,10 +201,10 @@ public:
         ps.reserve(ps.size() + count);
         ts.reserve(ts.size() + count);
 
-        std::vector<unsigned short> tmp_x;
-        std::vector<unsigned short> tmp_y;
-        std::vector<short> tmp_p;
-        std::vector<long long> tmp_t;
+        std::vector<uint16_t> tmp_x;
+        std::vector<uint16_t> tmp_y;
+        std::vector<int16_t> tmp_p;
+        std::vector<int64_t> tmp_t;
 
         tmp_x.reserve(count);
         tmp_y.reserve(count);
@@ -362,6 +300,7 @@ public:
         swap(ts, other.ts);
     }
 
+    // Not supported, throw error
     EventType* data() {
         throw std::runtime_error("Not supported, data is not contiguous.");
     }
@@ -383,7 +322,7 @@ public:
     }
 
 private:
-    void emplace_back_impl(unsigned short x, unsigned short y, short p, long long t) {
+    void emplace_back_impl(uint16_t x, uint16_t y, int16_t p, int64_t t) {
         xs.emplace_back(x);
         ys.emplace_back(y);
         ps.emplace_back(p);

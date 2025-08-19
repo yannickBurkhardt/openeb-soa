@@ -38,8 +38,8 @@ struct ProcesserWithIterator {
 };
 
 struct XyEvent {
-    unsigned short x;
-    unsigned short y;
+    uint16_t x;
+    uint16_t y;
 };
 
 template<typename EventType, template<typename> class Func>

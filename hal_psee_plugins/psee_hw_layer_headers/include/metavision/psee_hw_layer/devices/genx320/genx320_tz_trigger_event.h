@@ -43,14 +43,14 @@ public:
 
     /// @brief Returns the set of available channels
     /// @return set of available channels
-    std::map<Channel, short> get_available_channels() const override;
+    std::map<Channel, int16_t> get_available_channels() const override;
 
 protected:
     std::shared_ptr<RegisterMap> register_map_;
     std::string prefix_;
 
 private:
-    const std::map<Channel, short> chan_map_;
+    const std::map<Channel, int16_t> chan_map_;
 };
 
 } // namespace Metavision

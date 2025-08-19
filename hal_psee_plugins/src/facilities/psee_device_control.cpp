@@ -82,7 +82,7 @@ I_CameraSynchronization::SyncMode PseeDeviceControl::get_mode() const {
     return sync_mode_;
 }
 
-long long PseeDeviceControl::get_sensor_id() {
+int64_t PseeDeviceControl::get_sensor_id() {
     return -1;
 }
 

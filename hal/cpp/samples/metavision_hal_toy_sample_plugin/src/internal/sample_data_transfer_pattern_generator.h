@@ -71,12 +71,12 @@ struct SampleDataTransfer::PatternGenerator {
                 doing_random_ = false;
             }
         } else {
-            short idx_curr = idx_ + 1;
+            int16_t idx_curr = idx_ + 1;
             if (idx_curr == 4 * SIZE_SQUARE) {
                 current_time += 5;
             }
             idx_         = idx_ % (4 * SIZE_SQUARE);
-            short offset = idx_ % SIZE_SQUARE;
+            int16_t offset = idx_ % SIZE_SQUARE;
             if (idx_ < SIZE_SQUARE) {
                 encode_sample_format(ev, (current_x_so_ + idx_) % SampleGeometry::WIDTH_, current_y_so_, (y_step_ < 0),
                                      current_time);
@@ -97,15 +97,15 @@ struct SampleDataTransfer::PatternGenerator {
 private:
     std::random_device rd_{};
     std::mt19937 engine_{rd_()};
-    std::uniform_int_distribution<short> d_x_{0, SampleGeometry::WIDTH_ - 1};
-    std::uniform_int_distribution<short> d_y_{0, SampleGeometry::HEIGHT_ - 1};
-    std::uniform_int_distribution<short> d_p_{0, 1};
+    std::uniform_int_distribution<int16_t> d_x_{0, SampleGeometry::WIDTH_ - 1};
+    std::uniform_int_distribution<int16_t> d_y_{0, SampleGeometry::HEIGHT_ - 1};
+    std::uniform_int_distribution<int16_t> d_p_{0, 1};
 
-    static constexpr short SIZE_SQUARE = 40;
-    short current_x_ne_, current_y_ne_, current_x_so_, current_y_so_;
-    short x_step_ = 1, y_step_ = 1, idx_ = 0;
+    static constexpr int16_t SIZE_SQUARE = 40;
+    int16_t current_x_ne_, current_y_ne_, current_x_so_, current_y_so_;
+    int16_t x_step_ = 1, y_step_ = 1, idx_ = 0;
 
-    static constexpr short N_RANDOM                    = 10;
+    static constexpr int16_t N_RANDOM                    = 10;
     static constexpr Metavision::timestamp STEP_RANDOM = 200;
     bool doing_random_                                 = false;
     int n_random_                                      = 0;

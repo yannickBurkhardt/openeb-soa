@@ -30,10 +30,10 @@ namespace Metavision {
 class Event2d {
 public:
     /// @brief Column position in the sensor at which the event happened
-    unsigned short x;
+    uint16_t x;
 
     /// @brief Row position in the sensor at which the event happened
-    unsigned short y;
+    uint16_t y;
 
     /// @brief Polarity, whose value depends on the type of the event (CD or EM)
     ///
@@ -43,7 +43,7 @@ public:
     /// - In case of EM event: polarity representing the exposure measurement type
     ///     - 1: EM high i.e. the exposure measurement begins
     ///     - 0: EM low i.e. the exposure measurement ends
-    short p;
+    int16_t p;
 
     /// @brief Timestamp at which the event happened (in us)
     timestamp t;
@@ -56,7 +56,7 @@ public:
     /// @param y Row position of the event in the sensor
     /// @param p Polarity specialising the event
     /// @param t Timestamp of the event (in us)
-    inline Event2d(unsigned short x, unsigned short y, short p, timestamp t) : x(x), y(y), p(p), t(t) {}
+    inline Event2d(uint16_t x, uint16_t y, int16_t p, timestamp t) : x(x), y(y), p(p), t(t) {}
 
     /// @cond DO_NOT_SHOW_IN_DOC
     /// @brief function shifted that returns class Event2d

@@ -79,7 +79,7 @@
 namespace Metavision {
 
 /// @brief Online camera type input sources: USB, embedded, remote
-enum class OnlineSourceType : short {
+enum class OnlineSourceType : int16_t {
     /// Data from an embedded event-based camera
     EMBEDDED = 0,
 
@@ -90,7 +90,7 @@ enum class OnlineSourceType : short {
     REMOTE = 2,
 };
 
-enum class CameraStatus : short {
+enum class CameraStatus : int16_t {
     /// Camera is started, see @ref Camera::start and @ref Camera::is_running
     STARTED = 0,
 

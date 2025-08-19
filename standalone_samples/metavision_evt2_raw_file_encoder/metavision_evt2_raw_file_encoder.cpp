@@ -67,17 +67,17 @@ using Timestamp = uint64_t; // Type for timestamp, in microseconds
 struct EventCDEncoder {
 public:
     /// @brief Column position in the sensor at which the event happened
-    unsigned short x;
+    uint16_t x;
 
     /// @brief Row position in the sensor at which the event happened
-    unsigned short y;
+    uint16_t y;
 
     /// @brief Polarity
     ///
     /// The polarity represents the change of contrast
     ///     - 1: a positive contrast change
     ///     - 0: a negative contrast change
-    short p;
+    int16_t p;
 
     /// @brief Timestamp at which the event happened (in us)
     Timestamp t;
@@ -101,9 +101,9 @@ public:
             if (tokens_.size() != 4) {
                 std::cerr << "Invalid line for CD event: <" << line << ">" << std::endl;
             } else {
-                x = static_cast<unsigned short>(std::stoul(tokens_[0]));
-                y = static_cast<unsigned short>(std::stoul(tokens_[1]));
-                p = static_cast<short>(std::stoi(tokens_[2]));
+                x = static_cast<uint16_t>(std::stoul(tokens_[0]));
+                y = static_cast<uint16_t>(std::stoul(tokens_[1]));
+                p = static_cast<int16_t>(std::stoi(tokens_[2]));
                 t = std::stoll(tokens_[3]);
                 return true;
             }
@@ -126,13 +126,13 @@ public:
 struct EventTriggerEncoder {
 public:
     /// Polarity representing the change of contrast (1: positive, 0: negative)
-    short p;
+    int16_t p;
 
     /// Timestamp at which the event happened (in us)
     Timestamp t;
 
     /// ID of the external trigger
-    short id;
+    int16_t id;
 
 private:
     /// @brief Vector used to parse CSV input lines
@@ -153,8 +153,8 @@ public:
             if (tokens_.size() != 3) {
                 std::cerr << "Invalid line for Trigger event: <" << line << ">" << std::endl;
             } else {
-                p  = static_cast<short>(std::stoi(tokens_[0]));
-                id = static_cast<short>(std::stoi(tokens_[1]));
+                p  = static_cast<int16_t>(std::stoi(tokens_[0]));
+                id = static_cast<int16_t>(std::stoi(tokens_[1]));
                 t  = std::stoll(tokens_[2]);
                 return true;
             }
