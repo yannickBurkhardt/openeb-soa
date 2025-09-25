@@ -25,6 +25,7 @@
 #include "metavision/hal/device/device.h"
 #include "metavision/hal/device/device_discovery.h"
 #include "metavision/sdk/base/events/event_ext_trigger.h"
+#include "metavision/sdk/base/events/events_soa.h"
 #include "metavision/sdk/base/utils/generic_header.h"
 #include "metavision/sdk/base/utils/timestamp.h"
 #include "metavision/sdk/stream/camera.h"
