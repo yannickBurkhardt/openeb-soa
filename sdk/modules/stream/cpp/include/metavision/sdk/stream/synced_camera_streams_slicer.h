@@ -99,6 +99,9 @@ public:
     /// @brief Returns the underlying slave camera instance
     [[nodiscard]] const Camera &slave(size_t i) const;
 
+    /// @brief Returns current length of event slice queue
+    size_t current_queue_len() const;
+
 private:
     class Master;
 

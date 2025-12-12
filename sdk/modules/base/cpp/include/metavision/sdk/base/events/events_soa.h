@@ -15,8 +15,13 @@ class EventsSoA {
 public:
     using size_type = std::size_t;
     using value_type = EventType;
+    static constexpr size_type kDefaultReservationSize = 1'000'000;
+    inline static const char* kReservationSizeFromEnv = std::getenv("OPENEB_MAX_RESERVATION_SIZE");
+    inline static const size_type kReservationSize = kReservationSizeFromEnv ? 
+        static_cast<size_type>(std::atol(kReservationSizeFromEnv)) :
+        kDefaultReservationSize;
 
-    EventsSoA (size_type n_events = 10'000'000) {
+    EventsSoA (size_type n_events = kReservationSize) {
         reserve(n_events);
     }
 

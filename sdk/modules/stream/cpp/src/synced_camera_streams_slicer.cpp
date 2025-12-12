@@ -340,4 +340,8 @@ const Camera &SyncedCameraStreamsSlicer::slave(size_t i) const {
     return master_source_->slave(i).camera();
 }
 
+size_t SyncedCameraStreamsSlicer::current_queue_len() const {
+    return queue_->size();
+}
+
 } // namespace Metavision
